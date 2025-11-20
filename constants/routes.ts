@@ -1,0 +1,16 @@
+export const ROUTES = {
+    HOME: "/home",
+    ABOUT_US: "/about-us",
+    SERVICES: "/services",
+    SERVICES_BUSINESS_DEVELOPMENT: "/services/business-development",
+    SERVICES_BRAND_MANAGEMENT: "/services/brand-management",
+    SERVICES_CAPACITY_BUILDING: "/services/capacity-building",
+    SERVICES_MARKETING_CONSULTING: "/services/marketing-consulting",
+    SERVICES_TRADE_INVESTMENT: "/services/trade-investment",
+    BUSINESS_QUEST: "/business-quest",
+    CONTACT: "/contact",
+    BLOG: "/blog",
+    JOIN_THE_WAITLIST: "/join-the-waitlist",
+    PRIVACY_POLICY: "/privacy-policy",
+    TERMS_AND_CONDITIONS: "/terms-and-conditions",
+}
