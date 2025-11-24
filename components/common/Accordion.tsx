@@ -18,6 +18,7 @@ export interface AccordionProps {
   itemClassName?: string;
   questionClassName?: string;
   answerClassName?: string;
+  iconClassName?: string;
   animationDelay?: number;
 }
 
@@ -29,6 +30,7 @@ const Accordion: React.FC<AccordionProps> = ({
   itemClassName,
   questionClassName,
   answerClassName,
+  iconClassName,
   animationDelay = 0.1,
 }) => {
   const [openIndices, setOpenIndices] = useState<Set<number>>(
@@ -83,7 +85,7 @@ const Accordion: React.FC<AccordionProps> = ({
               >
                 {item.question}
               </h3>
-              <div className="shrink-0 cursor-pointer hover:text-gray-800 transition-colors hover:bg-white rounded-full p-1">
+              <div className={cn("shrink-0 cursor-pointer hover:text-gray-800 transition-colors hover:bg-white rounded-full p-1.5 sm:p-2", iconClassName)}>
                 {isOpen ? (
                   <FiX className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" />
                 ) : (

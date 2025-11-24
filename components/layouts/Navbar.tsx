@@ -17,6 +17,19 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
 
+  // Helper function to check if a route is active
+  const isActiveRoute = (href: string): boolean => {
+    if (href === pathname) return true;
+    // For Services parent link, check if current path starts with /services
+    if (href === ROUTES.SERVICES && pathname.startsWith('/services')) {
+      return true;
+    }
+    // For exact matches
+    return pathname === href;
+  };
+
+  // Check if Services dropdown should show as active
+  const isServicesActive = pathname.startsWith('/services');
 
   const navLinks = [
     { label: "About Us", href: ROUTES.ABOUT_US },
@@ -113,17 +126,33 @@ const Navbar = () => {
             {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center gap-6 lg:gap-8">
               {navLinks.map((link, index) => (
-                <div key={link.href || index} className="relative group">
+                <div
+                  key={link.href || index}
+                  className="relative group"
+                  onMouseEnter={() => link.hasDropdown && setIsServicesOpen(true)}
+                  onMouseLeave={() => link.hasDropdown && setIsServicesOpen(false)}
+                >
                   <Link
                     href={link.href}
                     className={cn(
-                      "text-white text-sm  hover:text-gray-300 transition-colors flex items-center gap-1",
-                      pathname === link.href && "text-gray-300"
+                      "relative text-white text-sm font-medium hover:text-gray-300 transition-colors flex items-center gap-1 px-2 py-1.5 rounded-md",
+                      isActiveRoute(link.href) && "text-white font-semibold"
                     )}
-                    onMouseEnter={() => link.hasDropdown && setIsServicesOpen(true)}
-                    onMouseLeave={() => link.hasDropdown && setIsServicesOpen(false)}
                   >
-                    {link.label}
+                    {/* Active indicator underline */}
+                    {isActiveRoute(link.href) && (
+                      <motion.div
+                        layoutId="activeNavLink"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"
+                        initial={false}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 30
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">{link.label}</span>
                     {link.hasDropdown && (
                       <svg
                         width="12"
@@ -132,8 +161,9 @@ const Navbar = () => {
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                         className={cn(
-                          "transition-transform duration-200",
-                          isServicesOpen && "rotate-180"
+                          "transition-transform duration-200 shrink-0",
+                          isServicesOpen && "rotate-180",
+                          isServicesActive && "text-white"
                         )}
                       >
                         <path
@@ -146,57 +176,85 @@ const Navbar = () => {
                       </svg>
                     )}
                   </Link>
-                  {link.hasDropdown && isServicesOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 mt-2 bg-black/80 backdrop-blur-md border border-white/20 rounded-lg p-2 min-w-[320px]"
-                      onMouseEnter={() => setIsServicesOpen(true)}
-                      onMouseLeave={() => setIsServicesOpen(false)}
-                    >
-                      {serviceItems.map((service) => {
-                        const isActive = pathname === service.href;
-                        return (
-                          <Link
-                            key={service.href}
-                            href={service.href}
-                            className={cn(
-                              "flex items-center gap-3 px-4 py-3 text-white text-sm rounded-lg transition-colors group",
-                              isActive
-                                ? "bg-white/10"
-                                : "hover:bg-white/10"
-                            )}
-                            onClick={() => setIsServicesOpen(false)}
-                          >
-                            {/* Icon */}
-                            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-white shrink-0 group-hover:bg-white/10 transition-colors">
-                              {service.icon}
-                            </div>
-                            {/* Service Name */}
-                            <span className="flex-1 font-medium">{service.label}</span>
-                            {/* Arrow */}
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="text-white/60 group-hover:text-white transition-colors shrink-0"
-                            >
-                              <path
-                                d="M6 12L10 8L6 4"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </Link>
-                        );
-                      })}
-                    </motion.div>
+                  {link.hasDropdown && (
+                    <div className={cn(
+                      "absolute top-full left-0 w-full h-2",
+                      !isServicesOpen && "pointer-events-none"
+                    )} />
                   )}
+                  <AnimatePresence>
+                    {link.hasDropdown && isServicesOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 mt-2 bg-black backdrop-blur-md border border-white/20 rounded-lg p-2 min-w-[320px]"
+                      >
+                        {serviceItems.map((service) => {
+                          const isActive = pathname === service.href;
+                          return (
+                            <Link
+                              key={service.href}
+                              href={service.href}
+                              className={cn(
+                                "relative flex items-center gap-3 px-4 py-3 text-white text-sm rounded-lg transition-colors group",
+                                isActive
+                                  ? "bg-white/15 text-white"
+                                  : "hover:bg-white/10"
+                              )}
+                              onClick={() => setIsServicesOpen(false)}
+                            >
+                              {/* Active indicator bar */}
+                              {isActive && (
+                                <motion.div
+                                  layoutId="activeServiceLink"
+                                  className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"
+                                  initial={false}
+                                  transition={{
+                                    type: "spring",
+                                    stiffness: 380,
+                                    damping: 30
+                                  }}
+                                />
+                              )}
+                              {/* Icon */}
+                              <div className={cn(
+                                "w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0 transition-colors",
+                                isActive ? "bg-white/20" : "bg-white/5 group-hover:bg-white/10"
+                              )}>
+                                {service.icon}
+                              </div>
+                              {/* Service Name */}
+                              <span className={cn(
+                                "flex-1",
+                                isActive ? "font-semibold" : "font-medium"
+                              )}>
+                                {service.label}
+                              </span>
+                              {/* Arrow */}
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="text-white/60 group-hover:text-white transition-colors shrink-0"
+                              >
+                                <path
+                                  d="M6 12L10 8L6 4"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </Link>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
@@ -231,8 +289,8 @@ const Navbar = () => {
                   <Link
                     href={link.href}
                     className={cn(
-                      "block text-white text-base font-medium hover:text-gray-300 transition-colors",
-                      pathname === link.href && "text-gray-300"
+                      "relative block text-white text-base font-medium hover:text-gray-300 transition-colors py-2 px-3 rounded-md",
+                      isActiveRoute(link.href) && "bg-white/10 text-white font-semibold"
                     )}
                     onClick={() => {
                       setIsMobileMenuOpen(false);
@@ -240,26 +298,61 @@ const Navbar = () => {
                     }}
                   >
                     {link.label}
+                    {isActiveRoute(link.href) && (
+                      <motion.div
+                        layoutId="activeMobileNavLink"
+                        className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"
+                        initial={false}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 30
+                        }}
+                      />
+                    )}
                   </Link>
                   {/* Mobile Services Dropdown */}
                   {link.hasDropdown && (
                     <div className="mt-2 ml-4 space-y-2 border-l border-white/10 pl-4">
-                      {serviceItems.map((service) => (
-                        <Link
-                          key={service.href}
-                          href={service.href}
-                          className={cn(
-                            "flex items-center gap-3 py-2 text-white text-sm rounded-lg transition-colors",
-                            pathname === service.href ? "text-gray-300" : "hover:text-gray-300"
-                          )}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white shrink-0">
-                            {service.icon}
-                          </div>
-                          <span className="flex-1 font-medium">{service.label}</span>
-                        </Link>
-                      ))}
+                      {serviceItems.map((service) => {
+                        const isActive = pathname === service.href;
+                        return (
+                          <Link
+                            key={service.href}
+                            href={service.href}
+                            className={cn(
+                              "relative flex items-center gap-3 py-2 px-3 text-white text-sm rounded-lg transition-colors",
+                              isActive ? "bg-white/10 text-white font-semibold" : "hover:bg-white/10 hover:text-gray-300"
+                            )}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {isActive && (
+                              <motion.div
+                                layoutId="activeMobileServiceLink"
+                                className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"
+                                initial={false}
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 380,
+                                  damping: 30
+                                }}
+                              />
+                            )}
+                            <div className={cn(
+                              "w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0",
+                              isActive ? "bg-white/20" : "bg-white/5"
+                            )}>
+                              {service.icon}
+                            </div>
+                            <span className={cn(
+                              "flex-1",
+                              isActive ? "font-semibold" : "font-medium"
+                            )}>
+                              {service.label}
+                            </span>
+                          </Link>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

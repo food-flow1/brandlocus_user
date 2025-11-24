@@ -11,6 +11,30 @@ import blog1 from "@/assets/images/home/blog1.svg";
 //images about us page
 import aboutUsPageHero from "@/assets/images/about/aboutHero.svg";
 
+//services page
+import businessDevelopment from "@/assets/images/services/developmentHero.svg";
+import brandManagementServices from "@/assets/images/services/brandHero.svg";
+import capacityBuilding from "@/assets/images/services/capacityHero.svg";
+import marketingConsulting from "@/assets/images/services/marketingHero.svg";
+import tradeInvestment from "@/assets/images/services/tradeHero.svg";
+
+//servicers tab icons
+import businessDevelopmentIcon from "@/assets/images/services/development.svg";
+import brandManagementIcon from "@/assets/images/services/brand.svg";
+import capacityBuildingIcon from "@/assets/images/services/capacity.svg";
+import marketingConsultingIcon from "@/assets/images/services/marketing.svg";
+import tradeInvestmentIcon from "@/assets/images/services/trade.svg";
+
+
+//business quest images
+import businessQuestHero from "@/assets/images/business/boxHero.svg";
+
+
+//business quest images cards
+import thinkFasterCard from "@/assets/images/business/cards/thinkFaster.svg";
+import foundersCard from "@/assets/images/business/cards/founders.svg";
+import betterCard from "@/assets/images/business/cards/better.svg";
+import transformCard from "@/assets/images/business/cards/transform.svg";
 
 //icons
 import logo from "@/assets/icons/logo.svg";
@@ -39,6 +63,20 @@ export const images = {
   global,
   blog1,
   aboutUsPageHero,
+
+  //services page images
+  businessDevelopment,
+  brandManagementServices,
+  capacityBuilding,
+  marketingConsulting,
+  tradeInvestment,
+
+  //business quest images
+  businessQuestHero,
+  thinkFasterCard,
+  foundersCard,
+  betterCard,
+  transformCard,
 };
 
 export const icons = {
@@ -56,4 +94,12 @@ export const icons = {
   aboutIcon,
   servicesIcon,
   blogIcon,
+
+
+  //services page icons
+  businessDevelopmentIcon,
+  brandManagementIcon,
+  capacityBuildingIcon,
+  marketingConsultingIcon,
+  tradeInvestmentIcon,
 };
