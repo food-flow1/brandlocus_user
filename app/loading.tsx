@@ -7,7 +7,7 @@ import { icons } from "@/constants";
 
 const Loading = () => {
   return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center pt-20">
+    <div className="fixed inset-0 bg-[#050505] flex items-center justify-center z-50">
       <div className="flex flex-col items-center gap-8">
         {/* Logo with Animation */}
         <motion.div

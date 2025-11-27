@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Marquee from "react-fast-marquee";
 import { images, icons } from "@/constants";
 import TryAiAdvisorButton from "@/components/common/TryAiAdvisorButton";
 import { FiArrowUpRight } from "react-icons/fi";
 
 const HeroPage = () => {
+    const [imageLoaded, setImageLoaded] = useState(false);
     return (
         <section className="min-h-fit pt-12 pb-4 sm:pt-18 md:pt-20 lg:pt-28">
             <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
@@ -116,10 +117,29 @@ const HeroPage = () => {
 
                     {/* Right Side - Image with Overlays (45%) */}
                     <div className="relative flex items-center justify-center lg:justify-end mt-0 w-full h-full sm:h-auto order-1 lg:order-0">  
+                        {/* Loading Skeleton */}
+                        <AnimatePresence>
+                            {!imageLoaded && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="absolute inset-0 w-full h-full sm:h-auto sm:max-w-full md:max-w-[420px] md:aspect-21/26 lg:max-w-full lg:w-full xl:max-w-[1100px] 2xl:max-w-[1300px] lg:aspect-21/26 z-0 bg-gray-100 rounded-lg animate-pulse"
+                                >
+                                    <div className="w-full h-full bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 rounded-lg">
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="w-16 h-16 border-4 border-gray-300 border-t-gray-400 rounded-full animate-spin"></div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
                         {/* Main Hero Image */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                            animate={{ opacity: imageLoaded ? 1 : 0, scale: imageLoaded ? 1 : 0.95 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                             className="relative w-full h-full sm:h-auto sm:max-w-full md:max-w-[420px] md:aspect-21/26 lg:max-w-full lg:w-full xl:max-w-[1100px] 2xl:max-w-[1300px] lg:aspect-21/26 z-10"
                         >
@@ -131,6 +151,7 @@ const HeroPage = () => {
                                 className="w-full h-full object-contain rounded-lg"
                                 priority
                                 sizes="(max-width: 640px) 300px, (max-width: 768px) 380px, (max-width: 1024px) 420px, (max-width: 1280px) 1100px, 1300px"
+                                onLoad={() => setImageLoaded(true)}
                             />
                         </motion.div>
                     </div>
