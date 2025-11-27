@@ -4,27 +4,10 @@ import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import SectionBadge from "@/components/common/SectionBadge";
-import { FiFileText } from "react-icons/fi";
-import { icons, images } from "@/constants";
+import { icons } from "@/constants";
+import { blogPosts } from "@/constants/data";
 
 const Blog = () => {
-  const blogPosts = [
-    {
-      image: images.blog1,
-      category: "Technology",
-      title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
-    },
-    {
-      image: images.blog1,
-      category: "Business",
-      title: "Strategies for Sustainable Business Growth in Emerging Markets",
-    },
-    {
-      image: images.blog1,
-      category: "Innovation",
-      title: "How Digital Transformation is Reshaping Traditional Industries",
-    },
-  ];
 
   return (
     <section className="w-full bg-white py-6 sm:py-8 md:py-10 lg:py-12 mt-10">
@@ -62,7 +45,7 @@ const Blog = () => {
 
         {/* Blog Posts Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
-          {blogPosts.map((post, index) => (
+          {blogPosts?.slice(0, 3).map((post: any, index: number) => (
             <motion.article
               key={index}
               initial={{ opacity: 0, y: 20 }}

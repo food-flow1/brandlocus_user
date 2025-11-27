@@ -8,3 +8,36 @@ export const allServices = [
     { name: "Marketing Consulting", icon: images.brandManagement, href: ROUTES.SERVICES_MARKETING_CONSULTING },
     { name: "Trade & Investment Facilitation", icon: icons.tradeInvestmentIcon, href: ROUTES.SERVICES_TRADE_INVESTMENT },
 ]
+
+export const blogPosts = [
+    {
+        image: images.blog1,
+        category: "Technology",
+        title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
+    },
+    {
+        image: images.blog1,
+        category: "Technology",
+        title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
+    },
+    {
+        image: images.blog1,
+        category: "Technology",
+        title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
+    },
+    {
+        image: images.blog1,
+        category: "Technology",
+        title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
+    },
+    {
+        image: images.blog1,
+        category: "Technology",
+        title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
+    },
+    {
+        image: images.blog1,
+        category: "Technology",
+        title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
+    },
+];

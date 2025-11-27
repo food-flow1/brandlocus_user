@@ -13,4 +13,7 @@ export const ROUTES = {
     JOIN_THE_WAITLIST: "/join-the-waitlist",
     PRIVACY_POLICY: "/privacy-policy",
     TERMS_AND_CONDITIONS: "/terms-and-conditions",
+
+    CHAT_BOX: "/chat-box",
+    AI_POWERED: "/ai-powered",
 }

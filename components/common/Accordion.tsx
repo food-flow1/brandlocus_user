@@ -73,7 +73,7 @@ const Accordion: React.FC<AccordionProps> = ({
             )}
           >
             {/* Question */}
-            <button
+            <div
               onClick={() => toggleItem(index)}
               className="w-full flex items-center justify-between p-4 sm:p-5 md:p-6 text-left hover:bg-gray-50 transition-colors"
             >
@@ -92,7 +92,7 @@ const Accordion: React.FC<AccordionProps> = ({
                   <FiPlus className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800" />
                 )}
               </div>
-            </button>
+            </div>
 
             {/* Answer */}
             <AnimatePresence>

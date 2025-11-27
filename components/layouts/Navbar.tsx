@@ -124,7 +124,7 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-6 lg:gap-8">
+            <div className="hidden lg:flex items-center gap-1 lg:gap-2">
               {navLinks.map((link, index) => (
                 <div
                   key={link.href || index}
@@ -135,15 +135,15 @@ const Navbar = () => {
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative text-white text-sm font-medium hover:text-gray-300 transition-colors flex items-center gap-1 px-2 py-1.5 rounded-md",
+                      "relative text-white text-sm font-medium hover:text-gray-300 transition-colors flex items-center gap-1 py-2.5 rounded-md px-6",
                       isActiveRoute(link.href) && "text-white font-semibold"
                     )}
                   >
-                    {/* Active indicator underline */}
+                    {/* Active indicator background */}
                     {isActiveRoute(link.href) && (
                       <motion.div
                         layoutId="activeNavLink"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"
+                        className="absolute inset-0 bg-white/10 rounded-lg"
                         initial={false}
                         transition={{
                           type: "spring",
@@ -205,19 +205,6 @@ const Navbar = () => {
                               )}
                               onClick={() => setIsServicesOpen(false)}
                             >
-                              {/* Active indicator bar */}
-                              {isActive && (
-                                <motion.div
-                                  layoutId="activeServiceLink"
-                                  className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"
-                                  initial={false}
-                                  transition={{
-                                    type: "spring",
-                                    stiffness: 380,
-                                    damping: 30
-                                  }}
-                                />
-                              )}
                               {/* Icon */}
                               <div className={cn(
                                 "w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0 transition-colors",
@@ -298,18 +285,6 @@ const Navbar = () => {
                     }}
                   >
                     {link.label}
-                    {isActiveRoute(link.href) && (
-                      <motion.div
-                        layoutId="activeMobileNavLink"
-                        className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"
-                        initial={false}
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 30
-                        }}
-                      />
-                    )}
                   </Link>
                   {/* Mobile Services Dropdown */}
                   {link.hasDropdown && (
@@ -326,18 +301,6 @@ const Navbar = () => {
                             )}
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            {isActive && (
-                              <motion.div
-                                layoutId="activeMobileServiceLink"
-                                className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"
-                                initial={false}
-                                transition={{
-                                  type: "spring",
-                                  stiffness: 380,
-                                  damping: 30
-                                }}
-                              />
-                            )}
                             <div className={cn(
                               "w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0",
                               isActive ? "bg-white/20" : "bg-white/5"

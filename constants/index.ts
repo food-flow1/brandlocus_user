@@ -28,6 +28,11 @@ import tradeInvestmentIcon from "@/assets/images/services/trade.svg";
 
 //business quest images
 import businessQuestHero from "@/assets/images/business/boxHero.svg";
+import dice2 from "@/assets/images/business/dice2.svg";
+import cards from "@/assets/images/business/cards.svg";
+import desk1 from "@/assets/images/business/desk1.svg";
+import desk2 from "@/assets/images/business/desk2.svg";
+import desk3 from "@/assets/images/business/desk3.svg";
 
 
 //business quest images cards
@@ -35,6 +40,7 @@ import thinkFasterCard from "@/assets/images/business/cards/thinkFaster.svg";
 import foundersCard from "@/assets/images/business/cards/founders.svg";
 import betterCard from "@/assets/images/business/cards/better.svg";
 import transformCard from "@/assets/images/business/cards/transform.svg";
+
 
 //icons
 import logo from "@/assets/icons/logo.svg";
@@ -77,6 +83,11 @@ export const images = {
   foundersCard,
   betterCard,
   transformCard,
+  dice2,
+  cards,
+  desk1,
+  desk2,
+  desk3,
 };
 
 export const icons = {

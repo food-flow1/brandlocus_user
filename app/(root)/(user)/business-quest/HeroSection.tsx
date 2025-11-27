@@ -7,53 +7,88 @@ import { images } from '@/constants';
 
 const HeroSection = () => {
   return (
-    <section className="w-full bg-white py-12 sm:py-16 md:py-20 lg:py-24 overflow-x-hidden">
-      <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
-        <div className="grid lg:grid-cols-3 gap-8 md:gap-12 lg:gap-16 items-center relative">
-          {/* Left Side Cards */}
-          <div className="space-y-6 sm:space-y-8">
+    <section className="w-full pt-4 sm:py-8 md:py-10 lg:py-12 overflow-x-hidden ">
+      <div className="max-width-container mx-auto sm:px-3 md:px-4 lg:px-6 xl:px-10 ">
+        <div className="relative h-[400px] sm:h-[500px]">
+          {/* Left Side Cards - Desktop: left side, Mobile: below cube */}
+          <div className="absolute left-1/2 -translate-x-1/2 lg:left-[6%] lg:translate-x-0 top-[-10%] lg:top-1/3 lg:-translate-y-1/2 w-full max-w-[450px] lg:max-w-none lg:w-auto z-30 space-y-4 lg:space-y-2">
             {/* Transform Card */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="transition-shadow"
+              animate={{ 
+                opacity: 1, 
+                x: 0,
+                y: [0, -5, 0]
+              }}
+              transition={{ 
+                opacity: { duration: 0.6 },
+                x: { duration: 0.6 },
+                y: {
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.6
+                }
+              }}
+              className="relative w-full lg:w-[450px] mx-auto lg:mx-0"
             >
-              <div className="relative w-full sm:w-[400px] aspect-[4/3]">
-                <Image
-                  src={images.transformCard}
-                  alt="Transform abstract strategy into hands-on decisions"
-                  className='w-full h-full object-cover'
-                  fill
-                />
-              </div>
+              <Image
+                src={images.transformCard}
+                alt="Transform abstract strategy into hands-on decisions"
+                className='w-full h-full object-cover bg-transparent'
+                style={{ background: 'transparent' }}
+              />
             </motion.div>
 
             {/* Think Faster Card */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="transition-shadow"
-              >
-                <div className="relative w-full sm:w-[400px] aspect-[4/3]">
-                  <Image
-                    src={images.thinkFasterCard}
-                    alt="Think faster, decide smarter"
-                    className='w-full h-full object-cover'
-                    fill
-                  />
-                </div>
+              animate={{ 
+                opacity: 1, 
+                x: 0,
+                y: [0, -5, 0]
+              }}
+              transition={{ 
+                opacity: { duration: 0.6, delay: 0.1 },
+                x: { duration: 0.6, delay: 0.1 },
+                y: {
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.7
+                }
+              }}
+              className="relative w-full lg:w-[450px] mx-auto lg:mx-0 hidden lg:block"
+            >
+              <Image
+                src={images.thinkFasterCard}
+                alt="Think faster, decide smarter"
+                className='w-full h-full object-cover bg-transparent'
+                style={{ background: 'transparent' }}
+              />
             </motion.div>
           </div>
 
           {/* Center - 3D Cube */}
-          <div className="relative order-first lg:order-0">
+          <div className="absolute left-1/2 top-0 lg:top-1/2 -translate-x-1/2 lg:-translate-y-1/2 w-full max-w-lg z-20">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative w-full aspect-square max-w-lg mx-auto"
+              animate={{ 
+                opacity: 1, 
+                scale: 1,
+                y: [0, -10, 0]
+              }}
+              transition={{ 
+                opacity: { duration: 0.8, delay: 0.2 },
+                scale: { duration: 0.8, delay: 0.2 },
+                y: {
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.2
+                }
+              }}
+              className="relative w-full aspect-square"
             >
               <Image
                 src={images.businessQuestHero}
@@ -67,11 +102,22 @@ const HeroSection = () => {
             {/* Founders Card - Overlapping at bottom */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="absolute -bottom-6 sm:-bottom-8 left-1/2 transform -translate-x-1/2 w-[90%] sm:w-[85%] max-w-sm"
+              animate={{ 
+                opacity: 1, 
+                y: [0, -8, 0]
+              }}
+              transition={{ 
+                opacity: { duration: 0.6, delay: 0.4 },
+                y: {
+                  duration: 3.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.4
+                }
+              }}
+              className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 w-[95%] sm:w-[90%]"
             >
-              <div className="relative w-full aspect-[4/3] rounded-xl shadow-lg overflow-hidden">
+              <div className="relative w-full aspect-[4/1] overflow-hidden">
                 <Image
                   src={images.foundersCard}
                   alt="For Founder and teams"
@@ -82,88 +128,33 @@ const HeroSection = () => {
             </motion.div>
           </div>
 
-          {/* Right Side - Checklist */}
-          <div className="space-y-6 sm:space-y-8">
+          {/* Right Side - Checklist - Desktop: right side, Mobile: at bottom */}
+          <div className="absolute hidden lg:block left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0 lg:right-[20%] top-auto lg:top-1/3 bottom-0 lg:bottom-auto lg:-translate-y-1/2 w-full max-w-[200px] lg:max-w-none lg:w-auto z-30">
             <motion.div
               initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col gap-4 sm:gap-6"
+              animate={{ 
+                opacity: 1, 
+                x: 0,
+                y: [0, -6, 0]
+              }}
+              transition={{ 
+                opacity: { duration: 0.6, delay: 0.3 },
+                x: { duration: 0.6, delay: 0.3 },
+                y: {
+                  duration: 3.8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.3
+                }
+              }}
+              className="relative w-full lg:w-[200px] mx-auto lg:mx-0"
             >
-              {/* Checklist Item */}
-              <div className="flex items-center gap-3">
-                <div className="shrink-0 w-5 h-5 rounded-full bg-black flex items-center justify-center">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-white"
-                  >
-                    <path
-                      d="M10 3L4.5 8.5L2 6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <span className="text-base sm:text-lg font-medium text-gray-900">
-                  Better meetings
-                </span>
-              </div>
-
-              {/* Checklist Item */}
-              <div className="flex items-center gap-3">
-                <div className="shrink-0 w-5 h-5 rounded-full bg-black flex items-center justify-center">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-white"
-                  >
-                    <path
-                      d="M10 3L4.5 8.5L2 6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <span className="text-base sm:text-lg font-medium text-gray-900">
-                  Sharper meetings
-                </span>
-              </div>
-
-              {/* Checklist Item */}
-              <div className="flex items-center gap-3">
-                <div className="shrink-0 w-5 h-5 rounded-full bg-black flex items-center justify-center">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-white"
-                  >
-                    <path
-                      d="M10 3L4.5 8.5L2 6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <span className="text-base sm:text-lg font-medium text-gray-900">
-                  Kickstart leadership
-                </span>
-              </div>
+              <Image
+                src={images.betterCard}
+                alt="Better meetings checklist"
+                className='w-full h-full object-cover bg-transparent'
+                style={{ background: 'transparent' }}
+              />
             </motion.div>
           </div>
         </div>
