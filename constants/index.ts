@@ -16,7 +16,7 @@ import businessDevelopment from "@/assets/images/services/developmentHero.svg";
 import brandManagementServices from "@/assets/images/services/brandHero.svg";
 import capacityBuilding from "@/assets/images/services/capacityHero.svg";
 import marketingConsulting from "@/assets/images/services/marketingHero.svg";
-import tradeInvestment from "@/assets/images/services/tradeHero.svg";
+import tradeInvestment from "@/assets/images/services/TradeHero.svg";
 
 //servicers tab icons
 import businessDevelopmentIcon from "@/assets/images/services/development.svg";
@@ -33,6 +33,7 @@ import cards from "@/assets/images/business/cards.svg";
 import desk1 from "@/assets/images/business/desk1.svg";
 import desk2 from "@/assets/images/business/desk2.svg";
 import desk3 from "@/assets/images/business/desk3.svg";
+
 
 
 //business quest images cards
