@@ -35,7 +35,8 @@ const Navbar = () => {
     { label: "About Us", href: ROUTES.ABOUT_US },
     {
       label: "Services",
-      href: ROUTES.SERVICES,
+      // href: ROUTES.SERVICES,
+      href: ROUTES.SERVICES_BUSINESS_DEVELOPMENT,
       hasDropdown: true
     },
     { label: "Business Quest", href: ROUTES.BUSINESS_QUEST },
