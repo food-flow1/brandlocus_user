@@ -19,6 +19,7 @@ interface CustomSelectProps {
   variant?: "dark" | "light";
   className?: string;
   searchable?: boolean;
+  disabled?: boolean;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -30,6 +31,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   variant = "dark",
   className = "",
   searchable = false,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,10 +98,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           {label}
         </label>
       )}
-      <button
-        type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full px-4 py-3 text-sm sm:text-base flex items-center justify-between focus:outline-none focus:ring-2 ${styles.button}`}
+      <div
+        onClick={() => !disabled && setIsOpen((prev) => !prev)}
+        className={`w-full px-4 py-3 text-sm sm:text-base flex items-center justify-between focus:outline-none focus:ring-2 ${
+          disabled 
+            ? "opacity-50 cursor-not-allowed" 
+            : "cursor-pointer"
+        } ${styles.button}`}
       >
         <span className="flex items-center gap-2">
           {selected?.icon}
@@ -127,7 +132,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             strokeLinejoin="round"
           />
         </svg>
-      </button>
+      </div>
 
       <AnimatePresence>
         {isOpen && (

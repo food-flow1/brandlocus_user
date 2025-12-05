@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
-interface CustomInputBaseProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'> {
+interface CustomInputBaseProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "name"> {
   label?: string;
   variant?: "dark" | "light";
   containerClassName?: string;
@@ -15,13 +17,16 @@ const CustomInputBase: React.FC<CustomInputBaseProps> = ({
   variant = "dark",
   containerClassName = "",
   className = "",
-  error: externalError,
+  error,
   name,
   value,
   onChange,
+  type,
   ...inputProps
 }) => {
-  const error = externalError;
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const styles =
     variant === "dark"
@@ -45,15 +50,40 @@ const CustomInputBase: React.FC<CustomInputBaseProps> = ({
           {label}
         </label>
       )}
-      <input
-        {...inputProps}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className={`w-full rounded-2xl border px-4 py-3 text-sm sm:text-base focus:outline-none focus:ring-2 ${styles.input} ${error ? styles.inputError : ""} ${className}`}
-      />
+      <div className="relative">
+        <input
+          {...inputProps}
+          ref={inputRef}
+          name={name}
+          value={value}
+          onChange={onChange}
+          type={isPassword ? (showPassword ? "text" : "password") : type}
+          data-dark={variant === "dark" ? "true" : "false"}
+          className={`w-full rounded-2xl border px-4 py-3 text-sm bg-transparent sm:text-base focus:outline-none focus:ring-2 ${styles.input} ${
+            error ? styles.inputError : ""
+          } ${isPassword ? "pr-12" : ""} ${className}`}
+        />
+
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className={`absolute cursor-pointer right-4 top-1/2 -translate-y-1/2 ${
+              variant === "dark"
+                ? "text-white/70 hover:text-white"
+                : "text-gray-500 hover:text-gray-700"
+            } transition-colors`}
+          >
+            {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+          </button>
+        )}
+      </div>
       {error && (
-        <p className={`text-sm ${variant === "dark" ? "text-red-400" : "text-red-600"}`}>
+        <p
+          className={`text-sm ${
+            variant === "dark" ? "text-red-400" : "text-red-600"
+          }`}
+        >
           {error}
         </p>
       )}
@@ -62,4 +92,3 @@ const CustomInputBase: React.FC<CustomInputBaseProps> = ({
 };
 
 export default CustomInputBase;
-
