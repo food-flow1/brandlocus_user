@@ -4,14 +4,17 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FiMail, FiPhone, FiArrowRight } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
+import { useSubmitContactForm } from "@/lib/api/hooks/useForms";
 
 const ContactUs = () => {
+  const submitForm = useSubmitContactForm();
   const [formData, setFormData] = useState({
     fullName: "",
     companyName: "",
     email: "",
     message: "",
   });
+  const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -20,10 +23,17 @@ const ContactUs = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
+    setFormMessage(null);
+    try {
+      await submitForm.mutateAsync(formData);
+      setFormMessage({ type: 'success', text: 'Message sent successfully! We\'ll be in touch soon.' });
+      setFormData({ fullName: "", companyName: "", email: "", message: "" });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      setFormMessage({ type: 'error', text: errorMessage });
+    }
   };
 
   const contactOptions = [
@@ -36,14 +46,14 @@ const ContactUs = () => {
     {
       icon: <FiPhone className="w-5 h-5 sm:w-6 sm:h-6" />,
       title: "Give us a call",
-      detail: "Book a Call",
-      href: "tel:+1234567890",
+      detail: "+234 903 350 9001",
+      href: "tel:+2349033509001",
     },
     {
       icon: <FaWhatsapp className="w-5 h-5 sm:w-6 sm:h-6" />,
       title: "Join our Channel",
       detail: "Join Whatsapp Channel",
-      href: "#",
+      href: "https://whatsapp.com/channel/0029Vb6jDqO0AgWFRDkKSM1u",
     },
   ];
 
@@ -142,6 +152,17 @@ const ContactUs = () => {
                 onSubmit={handleSubmit}
                 className="space-y-4 sm:space-y-5"
               >
+                {/* Form Message */}
+                {formMessage && (
+                  <div className={`p-4 rounded-xl text-center text-sm sm:text-base ${
+                    formMessage.type === 'success'
+                      ? 'bg-green-50 border border-green-200 text-green-700'
+                      : 'bg-red-50 border border-red-200 text-red-700'
+                  }`}>
+                    {formMessage.text}
+                  </div>
+                )}
+
                 {/* Full Name */}
                 <div>
                   <input
@@ -196,9 +217,20 @@ const ContactUs = () => {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full px-6 sm:px-8 py-3 sm:py-3.5 md:py-4 bg-black text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl"
+                  disabled={submitForm.isPending}
+                  className="w-full px-6 sm:px-8 py-3 sm:py-3.5 md:py-4 bg-black text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Get in touch
+                  {submitForm.isPending ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </>
+                  ) : (
+                    "Get in touch"
+                  )}
                 </button>
               </motion.form>
             </div>

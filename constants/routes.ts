@@ -16,4 +16,5 @@ export const ROUTES = {
 
     CHAT_BOX: "/chat-box",
     AI_POWERED: "/ai-powered",
+    LOGIN: "/login",
 }

@@ -107,12 +107,12 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50">
 
       {/* Main Navigation Bar */}
-      <div className="bg-black/80 backdrop-blur-md px-4 md:px-6 py-2 shadow-lg">
+      <div className="bg-black/80 backdrop-blur-md px-3 sm:px-4 md:px-6 py-2 md:py-3 shadow-lg">
         <div className="max-width-container mx-auto flex items-center justify-between">
-          <section className="flex items-center gap-12">
+          <section className="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12">
             {/* Logo */}
-            <Link href={ROUTES.HOME} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className=" rounded-lg p-2 md:p-3 flex items-center justify-center w-16 h-16 md:w-20 md:h-20 shrink-0">
+            <Link href={ROUTES.HOME} className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity shrink-0">
+              <div className="rounded-lg p-1.5 sm:p-2 md:p-3 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 shrink-0">
                 <Image
                   src={icons.logo}
                   alt="Brand Locus Logo"
@@ -125,7 +125,7 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-1 lg:gap-2">
+            <div className="hidden min-[900px]:flex items-center gap-0.5 min-[900px]:gap-1 lg:gap-2">
               {navLinks.map((link, index) => (
                 <div
                   key={link.href || index}
@@ -136,7 +136,7 @@ const Navbar = () => {
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative text-white text-sm font-medium hover:text-gray-300 transition-colors flex items-center gap-1 py-2.5 rounded-md px-6",
+                      "relative text-white text-[10px] min-[900px]:text-xs lg:text-sm font-medium hover:text-gray-300 transition-colors flex items-center gap-0.5 min-[900px]:gap-1 py-1.5 min-[900px]:py-2 lg:py-2.5 rounded-md px-1.5 min-[900px]:px-2.5 lg:px-4 xl:px-6 whitespace-nowrap",
                       isActiveRoute(link.href) && "text-white font-semibold"
                     )}
                   >
@@ -190,7 +190,7 @@ const Navbar = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-2 bg-black backdrop-blur-md border border-white/20 rounded-lg p-2 min-w-[320px]"
+                        className="absolute top-full left-0 mt-2 bg-black backdrop-blur-md border border-white/20 rounded-lg p-1.5 min-[900px]:p-2 w-[240px] min-[900px]:w-[260px] lg:w-[300px] xl:w-[320px]"
                       >
                         {serviceItems.map((service) => {
                           const isActive = pathname === service.href;
@@ -199,7 +199,7 @@ const Navbar = () => {
                               key={service.href}
                               href={service.href}
                               className={cn(
-                                "relative flex items-center gap-3 px-4 py-3 text-white text-sm rounded-lg transition-colors group",
+                                "relative flex items-center gap-2 min-[900px]:gap-2.5 lg:gap-3 px-2 min-[900px]:px-2.5 lg:px-4 py-1.5 min-[900px]:py-2 lg:py-3 text-white text-[10px] min-[900px]:text-xs lg:text-sm rounded-lg transition-colors group",
                                 isActive
                                   ? "bg-white/15 text-white"
                                   : "hover:bg-white/10"
@@ -208,14 +208,14 @@ const Navbar = () => {
                             >
                               {/* Icon */}
                               <div className={cn(
-                                "w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0 transition-colors",
+                                "w-7 h-7 min-[900px]:w-8 min-[900px]:h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center text-white shrink-0 transition-colors",
                                 isActive ? "bg-white/20" : "bg-white/5 group-hover:bg-white/10"
                               )}>
                                 {service.icon}
                               </div>
                               {/* Service Name */}
                               <span className={cn(
-                                "flex-1",
+                                "flex-1 text-[10px] min-[900px]:text-xs lg:text-sm",
                                 isActive ? "font-semibold" : "font-medium"
                               )}>
                                 {service.label}
@@ -249,15 +249,15 @@ const Navbar = () => {
           </section>
 
           {/* CTA Button - Desktop */}
-          <TryAiAdvisorButton className="hidden lg:inline-flex px-8 py-2 border border-gray-400 rounded-full text-white text-sm md:text-base hover:bg-white/10" />
+          <TryAiAdvisorButton className="hidden min-[900px]:inline-flex px-2.5 min-[900px]:px-3 lg:px-6 xl:px-8 py-1.5 min-[900px]:py-2 lg:py-2.5 border border-gray-400 rounded-full text-white text-[10px] min-[900px]:text-xs lg:text-sm xl:text-base hover:bg-white/10 whitespace-nowrap shrink-0" />
 
-          {/* Mobile Hamburger Menu */}
+          {/* Mobile Hamburger Menu - Show below 900px */}
           <button
-            className="lg:hidden text-white"
+            className="min-[900px]:hidden text-white p-1 hover:bg-white/10 rounded-md transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <LiaTimesSolid size={35} /> : <HiOutlineMenuAlt3 size={35} />}
+            {isMobileMenuOpen ? <LiaTimesSolid size={28} className="sm:w-8 sm:h-8" /> : <HiOutlineMenuAlt3 size={28} className="sm:w-8 sm:h-8" />}
           </button>
         </div>
       </div>
@@ -269,15 +269,15 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-black/80 backdrop-blur-md border-t border-white/10"
+            className="min-[900px]:hidden bg-black/80 backdrop-blur-md border-t border-white/10 max-h-[calc(100vh-80px)] overflow-y-auto"
           >
-            <div className="px-4 py-4 space-y-4">
+            <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-2 sm:space-y-3">
               {navLinks.map((link) => (
                 <div key={link.href || link.label}>
                   <Link
                     href={link.href}
                     className={cn(
-                      "relative block text-white text-base font-medium hover:text-gray-300 transition-colors py-2 px-3 rounded-md",
+                      "relative block text-white text-sm sm:text-base font-medium hover:text-gray-300 transition-colors py-2 px-3 rounded-md",
                       isActiveRoute(link.href) && "bg-white/10 text-white font-semibold"
                     )}
                     onClick={() => {
@@ -289,7 +289,7 @@ const Navbar = () => {
                   </Link>
                   {/* Mobile Services Dropdown */}
                   {link.hasDropdown && (
-                    <div className="mt-2 ml-4 space-y-2 border-l border-white/10 pl-4">
+                    <div className="mt-2 ml-3 sm:ml-4 space-y-1.5 sm:space-y-2 border-l border-white/10 pl-3 sm:pl-4">
                       {serviceItems.map((service) => {
                         const isActive = pathname === service.href;
                         return (
@@ -297,19 +297,19 @@ const Navbar = () => {
                             key={service.href}
                             href={service.href}
                             className={cn(
-                              "relative flex items-center gap-3 py-2 px-3 text-white text-sm rounded-lg transition-colors",
+                              "relative flex items-center gap-2 sm:gap-3 py-2 px-2 sm:px-3 text-white text-xs sm:text-sm rounded-lg transition-colors",
                               isActive ? "bg-white/10 text-white font-semibold" : "hover:bg-white/10 hover:text-gray-300"
                             )}
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
                             <div className={cn(
-                              "w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0",
+                              "w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-white shrink-0",
                               isActive ? "bg-white/20" : "bg-white/5"
                             )}>
                               {service.icon}
                             </div>
                             <span className={cn(
-                              "flex-1",
+                              "flex-1 text-xs sm:text-sm",
                               isActive ? "font-semibold" : "font-medium"
                             )}>
                               {service.label}
@@ -321,7 +321,7 @@ const Navbar = () => {
                   )}
                 </div>
               ))}
-              <TryAiAdvisorButton className="w-full mt-4 px-4 py-3 border border-white rounded-lg text-white text-base hover:bg-white/10" />
+              <TryAiAdvisorButton className="w-full mt-3 sm:mt-4 px-3 sm:px-4 py-2.5 sm:py-3 border border-white rounded-lg text-white text-sm sm:text-base hover:bg-white/10" />
             </div>
           </motion.div>
         )}
