@@ -106,10 +106,26 @@ export const authService = {
   },
 
   /**
-   * Update user profile
+   * Update user profile (uses proxy to avoid CORS)
    */
   updateProfile: async (payload: UpdateProfilePayload): Promise<User> => {
-    return await api.patch<User>("/profile/update", payload);
+    const token = tokenStorage.getToken();
+    const response = await fetch("/api/proxy/profile/update", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw { message: data.message || "Failed to update profile", status: response.status };
+    }
+
+    return data.data as User;
   },
 
   /**
@@ -127,18 +143,25 @@ export const authService = {
     });
     
     // Extract data from response structure: response.data.data
-    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+    if (response.data?.data) {
       return response.data.data;
     }
     // Fallback if response structure is different
-    return response.data as { imageUrl: string };
+    return response.data as unknown as { imageUrl: string };
   },
 
   /**
    * Forgot password
    */
   forgotPassword: async (payload: ForgetPasswordPayload): Promise<{ message: string }> => {
-    return await api.post("/auth/forgot-password", payload);
+    return await api.post("/token/get", payload);
+  },
+
+  /**
+   * Verify token
+   */
+  verifyToken: async (payload: { email: string; token: string }): Promise<{ message: string }> => {
+    return await api.post("/token/verify", payload);
   },
 
   /**
@@ -146,6 +169,13 @@ export const authService = {
    */
   resetPassword: async (payload: ResetPasswordPayload): Promise<{ message: string }> => {
     return await api.post("/auth/reset-password", payload);
+  },
+
+  /**
+   * Confirm Reset password (New Flow)
+   */
+  confirmResetPassword: async (payload: { email: string; newPassword: string; confirmNewPassword: string }): Promise<{ message: string }> => {
+    return await api.post("/password/reset", payload);
   },
 
   /**
@@ -178,17 +208,35 @@ export const authService = {
    * Register for AI-Powered Business Guidance
    */
   registerAIGuidance: async (payload: AIGuidanceRegisterPayload): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>("/auth/register", payload);
-    
-    // Store token and user data if returned
-    if (response.token) {
-      tokenStorage.setToken(response.token);
+    const responseData = await api.post<LoginResponseData>("/auth/register", payload);
+
+    // Extract token and user data from response (same structure as login)
+    const token = responseData.jwtToken;
+    const refreshToken = responseData.refreshToken;
+    const user: User = {
+      id: responseData.userId,
+      userId: responseData.userId,
+      email: responseData.email,
+      isActive: responseData.isActive,
+      role: responseData.role,
+    };
+
+    // Store token, refresh token, and user data
+    if (token) {
+      tokenStorage.setToken(token);
     }
-    if (response.user) {
-      userStorage.setUser(response.user);
+    if (refreshToken) {
+      refreshTokenStorage.setRefreshToken(refreshToken);
     }
-    
-    return response;
+    if (user) {
+      userStorage.setUser(user);
+    }
+
+    // Return in expected format
+    return {
+      token,
+      user,
+    };
   },
 };
 

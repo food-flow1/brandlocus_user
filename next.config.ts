@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: "https://brandlocus.foodflow.africa/api/v1/:path*",
+      },
+    ];
+  },
 
 };
 

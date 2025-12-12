@@ -261,7 +261,7 @@ const ReadyToTurn = () => {
                 className="space-y-4 sm:space-y-6 pt-8 sm:pt-12"
               >
                 <p className="text-sm sm:text-base md:text-lg text-gray-400 uppercase tracking-wider font-medium">
-                  TRUSTED BY 10+ COMPANIES
+                  TRUSTED BY COMPANIES YOU KNOW
                 </p>
 
                 {/* Company Logos - Marquee */}
@@ -274,7 +274,7 @@ const ReadyToTurn = () => {
                           alt="company logo"
                           width={140}
                           height={80}
-                          className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto object-contain"
+                          className="h-8 sm:h-10 md:h-12 lg:h-14 w-auto object-contain mix-blend-screen"
                         />
                       </div>
                     ))}

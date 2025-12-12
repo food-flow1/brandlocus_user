@@ -94,7 +94,7 @@ const HeroPage = () => {
                             className="space-y-3 sm:space-y-4 mt-8 sm:mt-10 md:mt-12 lg:mt-12 w-full sm:w-[90%] md:w-[85%] lg:w-[80%]"
                         >
                             <p className="text-sm sm:text-base md:text-lg text-center text-gray-500 uppercase tracking-wider">
-                                Trusted By 10+ Companies
+                                 TRUSTED BY COMPANIES YOU KNOW
                             </p>
                             {/* Company Logos - Marquee */}
                             <div className="relative overflow-hidden py-2">

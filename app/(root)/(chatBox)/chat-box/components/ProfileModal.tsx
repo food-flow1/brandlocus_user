@@ -26,6 +26,7 @@ interface ProfileFormValues {
     state: string;
     businessName: string;
     industryName: string;
+    businessBrief: string;
 }
 
 interface PasswordFormValues {
@@ -41,6 +42,17 @@ const genderOptions: CustomSelectOption[] = [
     { id: 'Prefer not to say', label: 'Prefer not to say' },
 ];
 
+const industryOptions: CustomSelectOption[] = [
+    { id: "tech", label: "Technology" },
+    { id: "finance", label: "Finance" },
+    { id: "healthcare", label: "Healthcare" },
+    { id: "retail", label: "Retail" },
+    { id: "manufacturing", label: "Manufacturing" },
+    { id: "education", label: "Education" },
+    { id: "real-estate", label: "Real Estate" },
+    { id: "hospitality", label: "Hospitality" },
+];
+
 const profileValidationSchema = Yup.object({
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
@@ -50,6 +62,7 @@ const profileValidationSchema = Yup.object({
     state: Yup.string().required('State is required'),
     businessName: Yup.string().required('Business name is required'),
     industryName: Yup.string().required('Industry name is required'),
+    businessBrief: Yup.string().required('Business brief is required'),
 });
 
 const passwordValidationSchema = Yup.object({
@@ -201,6 +214,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         state: profile?.state || '',
         businessName: profile?.businessName || '',
         industryName: profile?.industryName || '',
+        businessBrief: profile?.businessBrief || '',
     };
 
     const passwordInitialValues: PasswordFormValues = {
@@ -219,6 +233,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                 state: values.state,
                 industryName: values.industryName,
                 businessName: values.businessName,
+                businessBrief: values.businessBrief,
+                profileImageUrl: profile?.profileImageUrl,
             });
             toast.success('Profile updated successfully!', {
                 duration: 2000,
@@ -534,6 +550,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                         const stateOptions = getStateOptions(values.country);
                                         const selectedState = stateOptions.find(opt => opt.id === values.state);
                                         const selectedGender = genderOptions.find(opt => opt.id === values.gender);
+                                        const selectedIndustry = industryOptions.find(opt => opt.id === values.industryName);
 
                                         return (
                                             <Form className="space-y-4">
@@ -631,19 +648,57 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                     />
                                                 </div>
 
+                                                {/* Industry Name - Full Width */}
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-medium text-white/70">
+                                                        Industry Name
+                                                    </label>
+                                                    <CustomSelect
+                                                        options={industryOptions}
+                                                        selected={selectedIndustry || null}
+                                                        onChange={(value) => {
+                                                            setFieldValue('industryName', value.id);
+                                                        }}
+                                                        placeholder="Select industry"
+                                                        variant="dark"
+                                                        searchable={true}
+                                                    />
+                                                    <ErrorMessage name="industryName">
+                                                        {(msg) => <p className="text-xs text-red-400">{msg}</p>}
+                                                    </ErrorMessage>
+                                                </div>
+
+                                                {/* Business Brief - Textarea */}
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-medium text-white/70">
+                                                        Tell us about your business (A business brief)
+                                                    </label>
+                                                    <textarea
+                                                        name="businessBrief"
+                                                        value={values.businessBrief}
+                                                        onChange={(e) => setFieldValue('businessBrief', e.target.value)}
+                                                        placeholder="Describe your business..."
+                                                        rows={4}
+                                                        className="w-full rounded-2xl border px-4 py-3 text-sm sm:text-base bg-black/40 border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 resize-none"
+                                                    />
+                                                    <ErrorMessage name="businessBrief">
+                                                        {(msg) => <p className="text-xs text-red-400">{msg}</p>}
+                                                    </ErrorMessage>
+                                                </div>
+
                                                 {/* Action Buttons */}
                                                 <div className="flex gap-4 pt-4">
                                                     <button
                                                         type="button"
                                                         onClick={onClose}
-                                                        className="flex-1 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors border border-white/20"
+                                                        className="flex-1 px-6 py-3 cursor-pointer rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors border border-white/20"
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         type="submit"
                                                         disabled={updateProfile.isPending}
-                                                        className="flex-1 px-6 py-3 rounded-xl bg-white text-black font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="flex-1 px-6 py-3 cursor-pointer rounded-xl bg-white text-black font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         {updateProfile.isPending ? 'Saving...' : 'Save changes'}
                                                     </button>

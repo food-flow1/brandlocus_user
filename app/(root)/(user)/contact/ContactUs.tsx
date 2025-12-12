@@ -43,12 +43,7 @@ const ContactUs = () => {
       detail: "brandlocuslimited@gmail.com",
       href: "mailto:brandlocuslimited@gmail.com",
     },
-    {
-      icon: <FiPhone className="w-5 h-5 sm:w-6 sm:h-6" />,
-      title: "Give us a call",
-      detail: "+234 903 350 9001",
-      href: "tel:+2349033509001",
-    },
+
     {
       icon: <FaWhatsapp className="w-5 h-5 sm:w-6 sm:h-6" />,
       title: "Join our Channel",

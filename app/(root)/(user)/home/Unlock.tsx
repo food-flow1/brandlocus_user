@@ -93,7 +93,7 @@ const Unlock = () => {
             className="space-y-4 sm:space-y-6"
           >
             <p className="text-xs sm:text-sm md:text-base text-white/70 uppercase tracking-wider">
-              Trusted By 10+ Companies
+              TRUSTED BY COMPANIES YOU KNOW
             </p>
 
             {/* Company Logos - Marquee */}

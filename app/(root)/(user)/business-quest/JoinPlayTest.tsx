@@ -23,9 +23,9 @@ const validationSchema = Yup.object({
     firstName: Yup.string().required("First name is required").min(2, "First name must be at least 2 characters"),
     lastName: Yup.string().required("Last name is required").min(2, "Last name must be at least 2 characters"),
     email: Yup.string().email("Invalid email address").required("Email is required"),
-    serviceNeeded: Yup.string().required("Please select a service"),
+    serviceNeeded: Yup.string().required("Please select a sector"),
     companyName: Yup.string().required("Company name is required").min(2, "Company name must be at least 2 characters"),
-    message: Yup.string().required("Message is required").min(10, "Message must be at least 10 characters"),
+    message: Yup.string().required("Business brief is required").min(10, "Business brief must be at least 10 characters"),
 });
 
 // Initial form values
@@ -153,14 +153,14 @@ const JoinPlayTest = () => {
                                 />
                                 <div className="sm:col-span-2">
                                     <CustomSelect
-                                        label="Service Needed"
+                                        label="Sector"
                                         options={serviceOptions}
                                         selected={selectedService}
                                         onChange={(option) => {
                                             setSelectedService(option);
                                             setFieldValue("serviceNeeded", option.id);
                                         }}
-                                        placeholder="Select a service"
+                                        placeholder="Select a sector"
                                         variant="dark"
                                     />
                                     {touched.serviceNeeded && errors.serviceNeeded && (
@@ -168,7 +168,7 @@ const JoinPlayTest = () => {
                                     )}
                                 </div>
                                 <div className="sm:col-span-2">
-                                    <label className="block text-sm text-white/70 mb-2">Message</label>
+                                    <label className="block text-sm text-white/70 mb-2">Tell us about your business (A business brief)</label>
                                     <textarea
                                         name="message"
                                         value={values.message}

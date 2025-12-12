@@ -16,5 +16,9 @@ export const ROUTES = {
 
     CHAT_BOX: "/chat-box",
     AI_POWERED: "/ai-powered",
+    SET_PASSWORD: "/set-password",
+    RESET_PASSWORD: "/reset-password",
+    FORGET_PASSWORD: "/forget-password",
+    VERIFY_TOKEN: "/verify-token",
     LOGIN: "/login",
 }

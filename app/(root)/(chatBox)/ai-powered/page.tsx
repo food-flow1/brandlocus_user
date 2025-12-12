@@ -7,30 +7,25 @@ import * as Yup from 'yup';
 import toast, { Toaster } from 'react-hot-toast';
 import CustomInput from '@/components/forms/CustomInput';
 import CustomSelect, { CustomSelectOption } from '@/components/forms/CustomSelect';
-import CustomCheckbox from '@/components/forms/CustomCheckbox';
 import { ROUTES } from '@/constants/routes';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useRegisterAIGuidance } from '@/lib/api';
-import { Country, State, City } from 'country-state-city';
+import { Country, State } from 'country-state-city';
 import DecorativeBackground from '@/components/common/DecorativeBackground';
 
 interface FormValues {
     firstName: string;
     lastName: string;
     email: string;
-    password: string;
-    confirmPassword: string;
-    companyName: string;
+    businessName: string;
+    businessBrief: string;
     industrySector: string;
     country: string;
     state: string;
-    agreed: boolean;
 }
 
 const AIPowered = () => {
     const router = useRouter();
-    const registerAIGuidance = useRegisterAIGuidance();
     const isSubmittingRef = useRef(false);
 
     // Get Nigeria's ISO code
@@ -76,74 +71,32 @@ const AIPowered = () => {
         email: Yup.string()
             .required('Email is required')
             .email('Please enter a valid email address'),
-        password: Yup.string()
-            .required('Password is required')
-            .min(8, 'Password must be at least 8 characters long')
-            .max(128, 'Password must not exceed 128 characters')
-            .matches(
-                /[a-z]/,
-                'Password must contain at least one lowercase letter'
-            )
-            .matches(
-                /[A-Z]/,
-                'Password must contain at least one uppercase letter'
-            )
-            .matches(
-                /[0-9]/,
-                'Password must contain at least one number'
-            )
-            .matches(
-                /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
-                'Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)'
-            )
-            .test(
-                'no-spaces',
-                'Password must not contain spaces',
-                (value) => !value || !/\s/.test(value)
-            )
-            .test(
-                'not-common',
-                'Password is too common or weak. Please choose a stronger password',
-                (value) => {
-                    if (!value) return true;
-                    const commonPasswords = [
-                        'password', 'password123', '12345678', 'qwerty123',
-                        'admin123', 'welcome123', 'letmein123', 'monkey123'
-                    ];
-                    return !commonPasswords.includes(value.toLowerCase());
-                }
-            ),
-        confirmPassword: Yup.string()
-            .required('Please confirm your password')
-            .oneOf([Yup.ref('password')], 'Passwords do not match'),
-        companyName: Yup.string()
-            .required('Company name is required')
-            .min(2, 'Company name must be at least 2 characters'),
+        businessName: Yup.string()
+            .required('Business name is required')
+            .min(2, 'Business name must be at least 2 characters'),
+        businessBrief: Yup.string()
+            .required('Business brief is required')
+            .min(10, 'Business brief must be at least 10 characters'),
         industrySector: Yup.string()
             .required('Industry sector is required'),
         country: Yup.string()
             .required('Country is required'),
         state: Yup.string()
             .required('State is required'),
-        agreed: Yup.boolean()
-            .oneOf([true], 'You must agree to the terms to continue')
-            .required('You must agree to the terms to continue'),
     });
 
     const initialValues: FormValues = {
         firstName: '',
         lastName: '',
         email: '',
-        password: '',
-        confirmPassword: '',
-        companyName: '',
+        businessName: '',
+        businessBrief: '',
         industrySector: '',
         country: defaultCountryCode,
         state: '',
-        agreed: false,
     };
 
-    const handleSubmit = async (values: FormValues, { setSubmitting, resetForm }: any) => {
+    const handleSubmit = async (values: FormValues, { setSubmitting }: any) => {
         // Prevent double submission
         if (isSubmittingRef.current) {
             return;
@@ -171,56 +124,28 @@ const AIPowered = () => {
                 throw new Error('Please select a valid state');
             }
 
-            // Prepare payload according to API specification
-            const payload = {
+            // Store registration data in sessionStorage for the next step
+            const registrationData = {
                 firstName: values.firstName,
                 lastName: values.lastName,
                 email: values.email,
-                password: values.password,
                 industryName: selectedIndustry.label,
-                businessName: values.companyName,
+                businessName: values.businessName,
+                businessBrief: values.businessBrief,
                 country: selectedCountry.name,
                 state: selectedState.name,
-                agreementToReceiveAIGeneratedResponse: values.agreed,
             };
 
-            // Call the API
-            await registerAIGuidance.mutateAsync(payload);
+            sessionStorage.setItem('registrationData', JSON.stringify(registrationData));
 
-            // Show success toast
-            toast.success('Registration successful! Redirecting to chat...', {
-                duration: 3000,
-                style: {
-                    background: '#1a1a1a',
-                    color: '#fff',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                },
-            });
-
-            // Reset form after successful submission
-            resetForm();
-
-            // Redirect to chat box after a short delay
-            setTimeout(() => {
-                router.push(ROUTES.CHAT_BOX);
-            }, 1500);
+            // Navigate to set-password page
+            router.push(ROUTES.SET_PASSWORD);
 
         } catch (error: any) {
             console.error('Form submission error:', error);
 
-            // Handle specific error cases
-            let errorMessage = 'An error occurred. Please try again.';
-
-            if (error?.status === 409) {
-                errorMessage = error?.message || 'User with this email already exists. Please use a different email or try logging in.';
-            } else if (error?.message) {
-                errorMessage = error.message;
-            } else if (error?.errors) {
-                errorMessage = Object.values(error.errors).flat().join(', ');
-            }
-
             // Show error toast
-            toast.error(errorMessage, {
+            toast.error(error?.message || 'An error occurred. Please try again.', {
                 duration: 5000,
                 style: {
                     background: '#1a1a1a',
@@ -264,9 +189,9 @@ const AIPowered = () => {
             />
             <div className="min-h-screen bg-[#0A0A0A] text-white py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 relative overflow-hidden">
                 {/* Background Decorative Elements */}
-                <DecorativeBackground rightText="A" leftText="X" />
+                <DecorativeBackground rightText="A" leftText="Mr." />
 
-                <div className="max-w-4xl mx-auto relative z-10">
+                <div className="max-w-5xl mx-auto relative z-10">
                     {/* Header Section */}
                     <div className="text-center my-8 sm:my-12">
                         {/* Powered by GPT Badge */}
@@ -298,7 +223,7 @@ const AIPowered = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="text-base sm:text-md text-white/70 pb-8"
+                            className="text-base sm:text-md text-white/70 pb-2"
                         >
                             Get tailored business advice from Mr. A based on your challenge
                         </motion.p>
@@ -310,7 +235,7 @@ const AIPowered = () => {
                         validationSchema={validationSchema}
                         onSubmit={handleSubmit}
                     >
-                        {({ isSubmitting, setFieldValue, values, errors, touched }) => {
+                        {({ isSubmitting, setFieldValue, values }) => {
                             // Find selected industry option
                             const selectedIndustry = industryOptions.find(opt => opt.id === values.industrySector);
 
@@ -325,162 +250,165 @@ const AIPowered = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.6, delay: 0.3 }}
                                 >
-                                    <Form className="space-y-6 bg-white/8 backdrop-blur-2xl p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden">
+                                    <Form className="space-y-8 bg-white/8 backdrop-blur-2xl p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden">
                                         {/* Glass effect overlay */}
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none rounded-2xl sm:rounded-3xl"></div>
+
                                         {/* Glass effect content wrapper */}
-                                        <div className="relative z-10">
-                                            {/* Two Column Grid */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                                                <CustomInput
-                                                    name="firstName"
-                                                    label="First Name"
-                                                    type="text"
-                                                    placeholder="Enter your first name"
-                                                    variant="dark"
-                                                />
-                                                <CustomInput
-                                                    name="lastName"
-                                                    label="Last Name"
-                                                    type="text"
-                                                    placeholder="Enter your last name"
-                                                    variant="dark"
-                                                />
-                                                <CustomInput
-                                                    name="email"
-                                                    label="Email"
-                                                    type="email"
-                                                    placeholder="Enter your email"
-                                                    variant="dark"
-                                                />
+                                        <div className="relative z-10 space-y-8">
 
-                                                <CustomInput
-                                                    name="companyName"
-                                                    label="Company Name"
-                                                    type="text"
-                                                    placeholder="Enter your company name"
-                                                    variant="dark"
-                                                />
-                                            </div>
+                                            {/* ===== SECTION 1: DETAILS ===== */}
+                                            <div className="space-y-6">
+                                                {/* <div className="border-b border-white/10 pb-4">
+                                                    <h2 className="text-lg sm:text-xl font-semibold text-white">Your Details</h2>
+                                                    <p className="text-sm text-white/50 mt-1">Tell us about you and your business</p>
+                                                </div> */}
 
-                                            {/* Country and State - Two Column Grid */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 py-4">
-                                                {/* Country */}
+                                                {/* Name Fields - Two Column Grid */}
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                                                    <CustomInput
+                                                        name="firstName"
+                                                        label="First Name"
+                                                        type="text"
+                                                        placeholder="Enter your first name"
+                                                        variant="dark"
+                                                    />
+                                                    <CustomInput
+                                                        name="lastName"
+                                                        label="Last Name"
+                                                        type="text"
+                                                        placeholder="Enter your last name"
+                                                        variant="dark"
+                                                    />
+                                                </div>
+
+                                                {/* Email and Business Name - Two Column Grid */}
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                                                    <CustomInput
+                                                        name="email"
+                                                        label="Email"
+                                                        type="email"
+                                                        placeholder="Enter your email"
+                                                        variant="dark"
+                                                    />
+                                                    <CustomInput
+                                                        name="businessName"
+                                                        label="Business Name"
+                                                        type="text"
+                                                        placeholder="Enter your business name"
+                                                        variant="dark"
+                                                    />
+                                                </div>
+
+                                                {/* Country and State - Two Column Grid */}
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                                                    {/* Country */}
+                                                    <div className="space-y-2">
+                                                        <label className="block text-sm font-medium text-white/70">
+                                                            Country
+                                                        </label>
+                                                        <CustomSelect
+                                                            options={countryOptions}
+                                                            selected={selectedCountry || null}
+                                                            onChange={(value) => {
+                                                                setFieldValue('country', value.id);
+                                                                // Reset state when country changes
+                                                                setFieldValue('state', '');
+                                                            }}
+                                                            placeholder="Select country"
+                                                            variant="dark"
+                                                            searchable={true}
+                                                        />
+                                                        <ErrorMessage name="country">
+                                                            {(msg) => <p className="text-xs text-red-400">{msg}</p>}
+                                                        </ErrorMessage>
+                                                    </div>
+
+                                                    {/* State */}
+                                                    <div className="space-y-2">
+                                                        <label className="block text-sm font-medium text-white/70">
+                                                            State
+                                                        </label>
+                                                        <CustomSelect
+                                                            options={stateOptions}
+                                                            selected={selectedState || null}
+                                                            onChange={(value) => {
+                                                                setFieldValue('state', value.id);
+                                                            }}
+                                                            placeholder={values.country ? "Select state" : "Select country first"}
+                                                            variant="dark"
+                                                            searchable={true}
+                                                            disabled={!values.country}
+                                                        />
+                                                        <ErrorMessage name="state">
+                                                            {(msg) => <p className="text-xs text-red-400">{msg}</p>}
+                                                        </ErrorMessage>
+                                                    </div>
+
+                                                     {/* Industry Sector - Full Width */}
                                                 <div className="space-y-2">
                                                     <label className="block text-sm font-medium text-white/70">
-                                                        Country
+                                                        Industry Sector
                                                     </label>
                                                     <CustomSelect
-                                                        options={countryOptions}
-                                                        selected={selectedCountry || null}
+                                                        options={industryOptions}
+                                                        selected={selectedIndustry || null}
                                                         onChange={(value) => {
-                                                            setFieldValue('country', value.id);
-                                                            // Reset state when country changes
-                                                            setFieldValue('state', '');
+                                                            setFieldValue('industrySector', value.id);
                                                         }}
-                                                        placeholder="Select country"
+                                                        placeholder="Select industry sector"
                                                         variant="dark"
                                                         searchable={true}
                                                     />
-                                                    <ErrorMessage name="country">
+                                                    <ErrorMessage name="industrySector">
                                                         {(msg) => <p className="text-xs text-red-400">{msg}</p>}
                                                     </ErrorMessage>
                                                 </div>
+                                                </div>
 
-                                                {/* State */}
-                                                <div className="space-y-2">
-                                                    <label className="block text-sm font-medium text-white/70">
-                                                        State
+                                               
+
+                                                   {/* Business Brief - Full Width */}
+                                                <div>
+                                                    <label className="block text-sm font-medium text-white/70 mb-2">
+                                                        Tell us about your business (A business brief)
                                                     </label>
-                                                    <CustomSelect
-                                                        options={stateOptions}
-                                                        selected={selectedState || null}
-                                                        onChange={(value) => {
-                                                            setFieldValue('state', value.id);
-                                                        }}
-                                                        placeholder={values.country ? "Select state" : "Select country first"}
-                                                        variant="dark"
-                                                        searchable={true}
-                                                        disabled={!values.country}
+                                                    <Field
+                                                        as="textarea"
+                                                        name="businessBrief"
+                                                        rows={4}
+                                                        placeholder="Briefly describe your business, what you do, and your target market..."
+                                                        className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all resize-none text-sm sm:text-base"
                                                     />
-                                                    <ErrorMessage name="state">
-                                                        {(msg) => <p className="text-xs text-red-400">{msg}</p>}
+                                                    <ErrorMessage name="businessBrief">
+                                                        {(msg) => <p className="text-xs text-red-400 mt-1">{msg}</p>}
                                                     </ErrorMessage>
                                                 </div>
                                             </div>
 
-                                            {/* Industry Sector - Full Width */}
-                                            <div className="space-y-2 ">
-                                                <label className="block text-sm font-medium text-white/70">
-                                                    Industry Sector
-                                                </label>
-                                                <CustomSelect
-                                                    options={industryOptions}
-                                                    selected={selectedIndustry || null}
-                                                    onChange={(value) => {
-                                                        setFieldValue('industrySector', value.id);
-                                                    }}
-                                                    placeholder="Select industry sector"
-                                                    variant="dark"
-                                                    searchable={true}
-                                                />
-                                                <ErrorMessage name="industrySector">
-                                                    {(msg) => <p className="text-xs text-red-400">{msg}</p>}
-                                                </ErrorMessage>
-                                            </div>
-
-
-                                        {/* Password - Full Width */}
-                                        <div className="pt-3">
-                                            <CustomInput
-                                                name="password"
-                                                label="Password"
-                                                type="password"
-                                                placeholder="Enter your password"
-                                                variant="dark"
-                                            />
-                                        </div>
-
-                                        {/* Confirm Password - Full Width */}
-                                        <div className="pt-3">
-                                            <CustomInput
-                                                name="confirmPassword"
-                                                label="Confirm Password"
-                                                type="password"
-                                                placeholder="Confirm your password"
-                                                variant="dark"
-                                            />
-                                        </div>
-
-                                            {/* Consent Checkbox */}
-                                            <div className="pt-2">
-                                                <CustomCheckbox
-                                                    name="agreed"
-                                                    label="I agree to receive AI-generated advice and marketing communications."
-                                                    variant="dark"
-                                                />
-                                            </div>
-
-                                            {/* Submit Button */}
-                                            <div className='flex flex-col items-center gap-4 pt-6'>
-                                                <button
-                                                    type="submit"
-                                                    disabled={isSubmitting || registerAIGuidance.isPending}
-                                                    className="w-fit mx-auto text-black bg-white/80 font-medium rounded-full px-[4rem] py-3 cursor-pointer text-base sm:text-md hover:bg-white hover:text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    {isSubmitting || registerAIGuidance.isPending ? 'Submitting...' : 'Start chatting with Mr. A'}
-                                                </button>
-                                                
-                                                {/* Login Link */}
-                                                <p className="text-sm text-white/60 mt-4">
-                                                    Already have an account?{' '}
-                                                    <Link 
-                                                        href={ROUTES.LOGIN}
-                                                        className="text-white/90 hover:text-white underline transition-colors ml-1"
+                                            {/* ===== SUBMIT ===== */}
+                                            <div className="space-y-6 pt-2">
+                                                {/* Submit Button */}
+                                                <div className='flex flex-col items-center gap-4'>
+                                                    <button
+                                                        type="submit"
+                                                        disabled={isSubmitting}
+                                                        className="w-fit mx-auto text-black bg-white/80 font-medium rounded-full px-[4rem] py-3 cursor-pointer text-base sm:text-md hover:bg-white hover:text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
-                                                        Login
-                                                    </Link>
-                                                </p>
+                                                        {isSubmitting ? 'Processing...' : 'Continue'}
+                                                    </button>
+
+                                                    {/* Login Link */}
+                                                    <p className="text-sm text-white/60 mt-4">
+                                                        Already have an account?{' '}
+                                                        <Link
+                                                            href={ROUTES.LOGIN}
+                                                            className="text-white/90 hover:text-white underline transition-colors ml-1"
+                                                        >
+                                                            Login
+                                                        </Link>
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </Form>

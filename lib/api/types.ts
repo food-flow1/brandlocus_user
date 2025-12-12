@@ -64,6 +64,7 @@ export interface User {
   state?: string;
   industryName?: string;
   businessName?: string;
+  businessBrief?: string;
   profileImageUrl?: string | null;
   [key: string]: any;
 }
@@ -77,6 +78,7 @@ export interface UpdateProfilePayload {
   state?: string;
   industryName?: string;
   businessName?: string;
+  businessBrief?: string;
   profileImageUrl?: string | null;
 }
 

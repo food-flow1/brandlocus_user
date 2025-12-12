@@ -6,10 +6,11 @@ import { FiSend } from 'react-icons/fi';
 import { FiLoader } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import ChatSidebar from './components/ChatSidebar';
-import { tokenStorage, useStartChat, useChats } from '@/lib/api';
+import { tokenStorage, useStartChat, useChats, useProfile } from '@/lib/api';
 import { ROUTES } from '@/constants/routes';
 import toast, { Toaster } from 'react-hot-toast';
 import DecorativeBackground from '@/components/common/DecorativeBackground';
+import { industryPrompts } from './data/industryPrompts';
 
 interface ChatMessage {
     id: string;
@@ -54,11 +55,25 @@ const ChatBox = () => {
         checkAuth();
     }, [router]);
 
-    const suggestedPrompts = [
-        "What's the best growth strategy for startups?",
-        "How do I manage brand positioning?",
-        "Best way to enter a new market?",
-    ];
+    const { data: profile } = useProfile();
+    const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
+
+    useEffect(() => {
+        // Get prompts based on industry or default
+        const industryKey = profile?.industryName?.toLowerCase() || 'default';
+        // Check if we have prompts for this specific industry, otherwise try to find a partial match or use default
+        let prompts = industryPrompts[industryKey];
+
+        if (!prompts) {
+            // Try to find a partial match (e.g. if industry is "Technology Services" and we have "tech")
+            const key = Object.keys(industryPrompts).find(k => industryKey.includes(k));
+            prompts = key ? industryPrompts[key] : industryPrompts['default'];
+        }
+
+        // Shuffle and pick 3
+        const shuffled = [...prompts].sort(() => 0.5 - Math.random());
+        setSuggestedPrompts(shuffled.slice(0, 3));
+    }, [profile]);
 
     // Generate conversation title from content (summarize to shorter form)
     const generateTitle = (content: string): string => {
