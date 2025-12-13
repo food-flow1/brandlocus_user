@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { FiSend } from 'react-icons/fi';
-import { FiLoader } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiSend, FiLoader, FiZap, FiTrendingUp, FiTarget, FiMessageCircle, FiStar, FiArrowRight } from 'react-icons/fi';
+import { HiSparkles } from 'react-icons/hi2';
 import { useRouter } from 'next/navigation';
 import ChatSidebar from './components/ChatSidebar';
 import { tokenStorage, useStartChat, useChats, useProfile } from '@/lib/api';
@@ -26,6 +26,9 @@ interface Conversation {
     createdAt: Date;
     updatedAt: Date;
 }
+
+// Prompt card icons mapping
+const promptIcons = [FiZap, FiTrendingUp, FiTarget, FiMessageCircle, FiStar, FiArrowRight];
 
 const ChatBox = () => {
     const router = useRouter();
@@ -179,10 +182,23 @@ const ChatBox = () => {
     if (isCheckingAuth) {
         return (
             <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-white/70">Loading...</p>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center"
+                >
+                    <div className="relative w-20 h-20 mx-auto mb-6">
+                        {/* Outer ring */}
+                        <div className="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+                        {/* Spinning ring */}
+                        <div className="absolute inset-0 border-4 border-transparent border-t-white rounded-full animate-spin"></div>
+                        {/* Inner glow */}
+                        <div className="absolute inset-2 bg-white/5 rounded-full backdrop-blur-sm flex items-center justify-center">
+                            <HiSparkles className="w-6 h-6 text-white/60 animate-pulse" />
+                        </div>
+                    </div>
+                    <p className="text-white/60 text-sm font-medium">Preparing your workspace...</p>
+                </motion.div>
             </div>
         );
     }
@@ -223,84 +239,138 @@ const ChatBox = () => {
                         transition={{ duration: 0.6 }}
                         className="w-full max-w-4xl relative z-10 mx-auto"
                     >
-                        {/* Welcome Screen - Always show when on default page */}
-                        <div className="bg-white/8 backdrop-blur-2xl p-4 sm:p-6 md:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden">
-                            {/* Glass effect overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none rounded-2xl sm:rounded-3xl"></div>
+                        {/* Welcome Screen - Enhanced Design */}
+                        <div className="bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-2xl p-4 sm:p-6 md:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden">
+                            {/* Animated gradient background */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none rounded-2xl sm:rounded-3xl"></div>
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-white/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-2xl pointer-events-none"></div>
+
                             {/* Glass effect content wrapper */}
                             <div className="relative z-10">
-                                {/* Title */}
+                                {/* Title with sparkle animation */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, delay: 0.1 }}
-                                    className="text-center mb-4"
+                                    transition={{ duration: 0.7, ease: "easeOut" }}
+                                    className="text-center mb-3 sm:mb-4"
                                 >
-                                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2">
+                                    <div className="inline-flex items-center gap-2 mb-3 px-4 py-1.5 rounded-full bg-white/10 border border-white/20">
+                                        <HiSparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
+                                        <span className="text-xs sm:text-sm text-white/80 font-medium">AI-Powered Business Advisor</span>
+                                    </div>
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
                                         Let's Talk Business{' '}
-                                        <span className="inline-block">🚀</span>
+                                        <motion.span
+                                            className="inline-block"
+                                            animate={{ rotate: [0, 10, -10, 0] }}
+                                            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                        >
+                                            🚀
+                                        </motion.span>
                                     </h1>
                                 </motion.div>
 
                                 {/* Subtitle */}
                                 <motion.p
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, delay: 0.2 }}
-                                    className="text-center text-sm sm:text-base md:text-lg text-white/70 pb-8 sm:pb-12 md:pb-20"
+                                    transition={{ duration: 0.6, delay: 0.15 }}
+                                    className="text-center text-sm sm:text-base md:text-lg text-white/60 pb-6 sm:pb-8 md:pb-12 max-w-2xl mx-auto"
                                 >
-                                    Get tailored business advice from Mr. A based on your challenge
+                                    Get tailored business advice from <span className="text-white font-medium">Mr. A</span> based on your unique challenges
                                 </motion.p>
 
-                                {/* Suggested Prompts */}
+                                {/* Suggested Prompts - Enhanced Cards */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, delay: 0.3 }}
-                                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8"
+                                    transition={{ duration: 0.6, delay: 0.25 }}
+                                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8"
                                 >
-                                    {suggestedPrompts.map((prompt, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handlePromptClick(prompt)}
-                                            className={`p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl cursor-pointer border text-xs sm:text-sm md:text-base text-left transition-all ${selectedPrompt === prompt
-                                                ? 'bg-white/10 border-white/30 text-white'
-                                                : 'bg-black/40 border-white/10 text-white/90 hover:bg-white/5 hover:border-white/20'
-                                                }`}
-                                        >
-                                            {prompt}
-                                        </button>
-                                    ))}
+                                    <AnimatePresence mode="wait">
+                                        {suggestedPrompts.map((prompt, index) => {
+                                            const Icon = promptIcons[index % promptIcons.length];
+                                            return (
+                                                <motion.button
+                                                    key={prompt}
+                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    exit={{ opacity: 0, scale: 0.95 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                    whileHover={{ scale: 1.02, y: -2 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={() => handlePromptClick(prompt)}
+                                                    className={`group relative p-4 sm:p-5 rounded-xl sm:rounded-2xl cursor-pointer border text-left transition-all duration-300 overflow-hidden ${selectedPrompt === prompt
+                                                        ? 'bg-white/15 border-white/40 text-white shadow-lg shadow-white/5'
+                                                        : 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10 hover:border-white/25 hover:text-white'
+                                                        }`}
+                                                >
+                                                    {/* Gradient hover effect */}
+                                                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+
+                                                    <div className="relative z-10 flex items-start gap-3">
+                                                        <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-300 ${
+                                                            selectedPrompt === prompt
+                                                                ? 'bg-white/20'
+                                                                : 'bg-white/10 group-hover:bg-white/15'
+                                                        }`}>
+                                                            <Icon className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="text-xs sm:text-sm leading-relaxed">{prompt}</span>
+                                                    </div>
+
+                                                    {/* Selected indicator */}
+                                                    {selectedPrompt === prompt && (
+                                                        <motion.div
+                                                            layoutId="selected-prompt"
+                                                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-white/50 via-white to-white/50"
+                                                        />
+                                                    )}
+                                                </motion.button>
+                                            );
+                                        })}
+                                    </AnimatePresence>
                                 </motion.div>
 
-                                {/* Input Field */}
+                                {/* Enhanced Input Field */}
                                 <motion.form
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, delay: 0.4 }}
+                                    transition={{ duration: 0.6, delay: 0.35 }}
                                     onSubmit={handleSubmit}
-                                    className="relative px-0 sm:px-4 md:px-6 lg:px-12"
+                                    className="relative px-0 sm:px-4 md:px-8 lg:px-16"
                                 >
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            placeholder="Ask me any Business questions"
-                                            className="w-full rounded-2xl border border-white/20 bg-white/8 backdrop-blur-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 px-4 py-3 sm:py-4 pr-12 text-sm sm:text-base"
-                                        />
-                                        <button
-                                            type="submit"
-                                            disabled={!message.trim() || isLoading || startChat.isPending}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {(isLoading || startChat.isPending) ? (
-                                                <FiLoader className="w-5 h-5 text-white animate-spin" />
-                                            ) : (
-                                                <FiSend className="w-5 h-5 text-white" />
-                                            )}
-                                        </button>
+                                    <div className="relative group">
+                                        {/* Glowing border effect */}
+                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-white/20 via-white/10 to-white/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                                        <div className="relative flex items-center">
+                                            <input
+                                                type="text"
+                                                value={message}
+                                                onChange={(e) => setMessage(e.target.value)}
+                                                placeholder="Ask me any business question..."
+                                                className="w-full rounded-2xl border border-white/20 bg-black/40 backdrop-blur-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 px-5 py-3.5 sm:py-4 pr-14 text-sm sm:text-base transition-all duration-300"
+                                            />
+                                            <button
+                                                type="submit"
+                                                disabled={!message.trim() || isLoading || startChat.isPending}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 group/btn"
+                                            >
+                                                {(isLoading || startChat.isPending) ? (
+                                                    <FiLoader className="w-5 h-5 text-white animate-spin" />
+                                                ) : (
+                                                    <FiSend className="w-5 h-5 text-white group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-200" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
+
+                                    {/* Helper text */}
+                                    <p className="text-center text-xs text-white/40 mt-3">
+                                        Press Enter to send • Mr. A provides personalized business guidance
+                                    </p>
                                 </motion.form>
                             </div>
                         </div>

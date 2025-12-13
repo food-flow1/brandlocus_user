@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Marquee from "react-fast-marquee";
@@ -8,8 +8,12 @@ import { icons } from "@/constants";
 import { FiArrowUpRight } from "react-icons/fi";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { ROUTES } from "@/constants/routes";
+import BookingCalendarModal from "@/components/modals/BookingCalendarModal";
+import "@/styles/booking-calendar.css";
 
 const Unlock = () => {
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  
   const offerings = [
     "Brand Strategy",
     "Digital Presence",
@@ -80,11 +84,11 @@ const Unlock = () => {
             className="mb-8 sm:mb-10 md:mb-12 lg:mb-14"
           >
             <button 
-              onClick={() => window.open(ROUTES.BOOK_CONSULTATION, '_blank')}
+              onClick={() => setIsBookingModalOpen(true)}
               className="inline-flex items-center cursor-pointer justify-center gap-2 sm:gap-2.5 md:gap-3 bg-white text-black px-5 sm:px-7 md:px-9 lg:px-11 py-2.5 sm:py-3 md:py-3.5 lg:py-4 rounded-full w-full sm:w-auto sm:min-w-[240px] md:min-w-[280px] lg:min-w-[320px] mx-auto font-semibold text-xs sm:text-sm md:text-base lg:text-lg hover:bg-gray-100 transition-colors group"
             >
               <span>Book a Free Consultation</span>
-              <FiArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              <FiArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
           </motion.div>
 
@@ -119,6 +123,12 @@ const Unlock = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Booking Calendar Modal */}
+      <BookingCalendarModal 
+        isOpen={isBookingModalOpen} 
+        onClose={() => setIsBookingModalOpen(false)} 
+      />
     </section>
   );
 };

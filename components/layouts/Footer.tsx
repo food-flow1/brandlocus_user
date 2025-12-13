@@ -28,12 +28,12 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: <FiFacebook className="w-4 h-4" />, href: "#", label: "Facebook" },
-    { icon: <FiTwitter className="w-4 h-4" />, href: "#", label: "Twitter" },
-    { icon: <FiInstagram className="w-4 h-4" />, href: "#", label: "Instagram" },
-    { icon: <FiLinkedin className="w-4 h-4" />, href: "#", label: "LinkedIn" },
-    { icon: <FiYoutube className="w-4 h-4" />, href: "#", label: "YouTube" },
-    { icon: <FaWhatsapp className="w-4 h-4" />, href: "#", label: "WhatsApp" },
+    { icon: <FiFacebook className="w-4 h-4" />, href: "https://www.facebook.com/people/Brand-Locus/61569111870430/", label: "Facebook" },
+    { icon: <FiTwitter className="w-4 h-4" />, href: "https://x.com/TheBrandLocus?t=lmFXHymXRVBDXjydkWAPUA&s=09", label: "Twitter" },
+    { icon: <FiInstagram className="w-4 h-4" />, href: "https://www.instagram.com/thebrandlocus_/", label: "Instagram" },
+    { icon: <FiLinkedin className="w-4 h-4" />, href: "https://www.linkedin.com/company/brandlocus-limited/", label: "LinkedIn" },
+    { icon: <FiYoutube className="w-4 h-4" />, href: "https://www.youtube.com/@brandlocuslimited1660", label: "YouTube" },
+    { icon: <FaWhatsapp className="w-4 h-4" />, href: "https://whatsapp.com/channel/0029Vb6jDqO0AgWFRDkKSM1u", label: "WhatsApp" },
   ];
 
   return (

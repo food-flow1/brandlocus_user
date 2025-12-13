@@ -8,9 +8,12 @@ import { images, icons } from "@/constants";
 import TryAiAdvisorButton from "@/components/common/TryAiAdvisorButton";
 import { FiArrowUpRight } from "react-icons/fi";
 import { ROUTES } from "@/constants/routes";
+import BookingCalendarModal from "@/components/modals/BookingCalendarModal";
+import "@/styles/booking-calendar.css";
 
 const HeroPage = () => {
     const [imageLoaded, setImageLoaded] = useState(false);
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     return (
         <section className="min-h-fit pt-12 pb-4 sm:pt-18 md:pt-20 lg:pt-28">
             <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
@@ -82,7 +85,7 @@ const HeroPage = () => {
 
                             {/* Book a Free Consultation Button */}
                             <button 
-                                onClick={() => window.open(ROUTES.BOOK_CONSULTATION, '_blank')}
+                                onClick={() => setIsBookingModalOpen(true)}
                                 className="flex items-center cursor-pointer justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-white border border-gray-500 text-black rounded-full text-sm sm:text-base font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto sm:min-w-[180px] md:min-w-[200px]"
                             >
                                 <span>Book a Free Consultation</span>
@@ -161,6 +164,12 @@ const HeroPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Booking Calendar Modal */}
+            <BookingCalendarModal 
+                isOpen={isBookingModalOpen} 
+                onClose={() => setIsBookingModalOpen(false)} 
+            />
         </section>
     );
 };

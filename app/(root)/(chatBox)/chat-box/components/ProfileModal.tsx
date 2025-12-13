@@ -447,9 +447,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                         className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="bg-white/5 backdrop-blur-2xl rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative pointer-events-auto border border-white/20 shadow-2xl" data-profile-modal>
-                            {/* Glass effect overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none rounded-2xl"></div>
+                        <div className="bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-2xl rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative pointer-events-auto border border-white/20 shadow-2xl" data-profile-modal>
+                            {/* Decorative elements */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-white/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-2xl pointer-events-none"></div>
+
                             {/* Close Button */}
                             <button
                                 type="button"
@@ -457,24 +459,29 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                     e.stopPropagation();
                                     onClose();
                                 }}
-                                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 transition-colors z-20"
+                                className="absolute top-4 right-4 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 transition-all duration-200 z-20 border border-white/10 hover:border-white/20 group"
                             >
-                                <FiX className="w-5 h-5 text-white" />
+                                <FiX className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
                             </button>
 
                             {/* Content */}
                             <div className="p-6 sm:p-8 relative z-10">
                                 {/* Profile Picture Section */}
-                                <div className="flex flex-col items-center mb-6">
-                                    <div className="relative">
+                                <div className="flex flex-col items-center mb-8">
+                                    <motion.div
+                                        className="relative"
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
                                         {previewImage || profile.profileImageUrl ? (
                                             <img
                                                 src={previewImage || profile.profileImageUrl || ''}
                                                 alt="Profile"
-                                                className="w-24 h-24 rounded-full object-cover"
+                                                className="w-24 h-24 rounded-full object-cover ring-4 ring-white/10"
                                             />
                                         ) : (
-                                            <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center text-white font-semibold text-2xl">
+                                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center text-white font-semibold text-2xl ring-4 ring-white/10">
                                                 {getInitials()}
                                             </div>
                                         )}
@@ -498,19 +505,39 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                 <FiCamera className="w-4 h-4 text-black" />
                                             )}
                                         </button>
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-white mt-4">{getFullName()}</h2>
+                                    </motion.div>
+                                    <motion.h2
+                                        className="text-2xl font-bold text-white mt-4"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.15 }}
+                                    >
+                                        {getFullName()}
+                                    </motion.h2>
+                                    <motion.p
+                                        className="text-sm text-white/50 mt-1"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.2 }}
+                                    >
+                                        {profile?.email}
+                                    </motion.p>
                                 </div>
 
                                 {/* Tabs */}
-                                <div className="flex gap-4 mb-6 border-b border-white/10">
+                                <motion.div
+                                    className="flex gap-2 mb-6 p-1 bg-white/5 rounded-xl border border-white/10"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.25 }}
+                                >
                                     <button
                                         type="button"
                                         onClick={() => setActiveTab('profile')}
-                                        className={`pb-3 px-4 font-medium transition-colors ${
+                                        className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
                                             activeTab === 'profile'
-                                                ? 'text-white border-b-2 border-white'
-                                                : 'text-white/50 hover:text-white/70'
+                                                ? 'bg-white/15 text-white border border-white/20'
+                                                : 'text-white/50 hover:text-white/70 hover:bg-white/5 border border-transparent'
                                         }`}
                                     >
                                         Profile
@@ -518,15 +545,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                     <button
                                         type="button"
                                         onClick={() => setActiveTab('password')}
-                                        className={`pb-3 px-4 font-medium transition-colors ${
+                                        className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
                                             activeTab === 'password'
-                                                ? 'text-white border-b-2 border-white'
-                                                : 'text-white/50 hover:text-white/70'
+                                                ? 'bg-white/15 text-white border border-white/20'
+                                                : 'text-white/50 hover:text-white/70 hover:bg-white/5 border border-transparent'
                                         }`}
                                     >
                                         Password
                                     </button>
-                                </div>
+                                </motion.div>
 
                                 {/* Profile Form */}
                                 {activeTab === 'profile' && (
