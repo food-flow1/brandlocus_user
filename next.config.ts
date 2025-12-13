@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "brandlocusgroup.com",
+      },
+    ],
   },
 
   eslint: {
@@ -13,6 +19,14 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: "https://brandlocus.foodflow.africa/api/v1/:path*",
+      },
+    ];
   },
 
 };

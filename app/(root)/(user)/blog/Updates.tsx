@@ -3,13 +3,70 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { FiAlertCircle, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import BlogCard from "@/components/blog/BlogCard";
 import SectionBadge from "@/components/common/SectionBadge";
 import { icons } from "@/constants";
-import { blogPosts } from "@/constants/data";
+import { ScrapedUpdatesResult } from "@/types/wordpress";
 
-const Updates = () => {
- 
+interface UpdatesProps {
+  scrapedData: ScrapedUpdatesResult;
+}
+
+const Updates = ({ scrapedData }: UpdatesProps) => {
+  const { updates, currentPage, hasNextPage, hasPreviousPage, error } = scrapedData;
+
+  // Handle error state
+  if (error) {
+    return (
+      <section className="w-full bg-white pt-12 pb-2 sm:pt-16 sm:pb-6 md:pt-20 md:pb-8 lg:pt-24 lg:pb-10">
+        <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <SectionBadge
+              text="Blog"
+              icon={<Image src={icons.blogIcon} alt="blog" width={20} height={20} />}
+              className="mb-0"
+            />
+          </div>
+
+          <div className="max-w-2xl mx-auto text-center py-12">
+            <FiAlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Unable to Load Updates</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Handle empty state
+  if (updates.length === 0) {
+    return (
+      <section className="w-full bg-white pt-12 pb-2 sm:pt-16 sm:pb-6 md:pt-20 md:pb-8 lg:pt-24 lg:pb-10">
+        <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <SectionBadge
+              text="Blog"
+              icon={<Image src={icons.blogIcon} alt="blog" width={20} height={20} />}
+              className="mb-0"
+            />
+          </div>
+
+          <div className="max-w-2xl mx-auto text-center py-12">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No Updates Found</h3>
+            <p className="text-gray-600">Check back later for new content.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="w-full bg-white pt-12 pb-2 sm:pt-16 sm:pb-6 md:pt-20 md:pb-8 lg:pt-24 lg:pb-10">
       <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
@@ -32,44 +89,65 @@ const Updates = () => {
           Discover how we're shaping smarter learning experiences.
         </p>
 
-        {/* Blog Posts Grid - 2 rows x 3 columns */}
+        {/* Blog Posts Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
-          {blogPosts.map((post: any, index: number) => (
-            <Link key={index} href={`/blog/${index}`}>
-              <motion.article
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-                className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer group"
-              >
-              {/* Image */}
-              <div className="relative w-full aspect-3/2 overflow-hidden rounded-t-xl bg-gray-100">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-              </div>
-
-              {/* Content */}
-              <div className="p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4">
-                {/* Category Badge */}
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-50 text-blue-700">
-                  {post.category}
-                </span>
-
-                {/* Title */}
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 leading-tight group-hover:text-gray-900 transition-colors">
-                  {post.title}
-                </h3>
-              </div>
-            </motion.article>
-            </Link>
+          {updates.map((post, index) => (
+            <BlogCard key={post.slug || index} post={post} index={index} />
           ))}
         </div>
+
+        {/* Pagination */}
+        {(hasPreviousPage || hasNextPage) && (
+          <div className="flex justify-center items-center gap-8 mt-16 pt-12 border-t border-gray-200">
+            {/* Previous Button */}
+            {hasPreviousPage ? (
+              <Link
+                href={`/blog?page=${currentPage - 1}`}
+                className="group flex items-center gap-3 text-black hover:text-gray-600 transition-colors"
+              >
+                <span className="w-10 h-10 flex items-center justify-center border-2 border-black group-hover:bg-black group-hover:text-white transition-all duration-300">
+                  <FiChevronLeft className="w-5 h-5" />
+                </span>
+                <span className="font-medium text-sm uppercase tracking-wider">Previous</span>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-3 text-gray-300 cursor-not-allowed">
+                <span className="w-10 h-10 flex items-center justify-center border-2 border-gray-200">
+                  <FiChevronLeft className="w-5 h-5" />
+                </span>
+                <span className="font-medium text-sm uppercase tracking-wider">Previous</span>
+              </div>
+            )}
+
+            {/* Page Indicator */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400 uppercase tracking-widest">Page</span>
+              <span className="w-12 h-12 flex items-center justify-center border-2 border-black bg-black text-white font-bold text-lg">
+                {currentPage}
+              </span>
+            </div>
+
+            {/* Next Button */}
+            {hasNextPage ? (
+              <Link
+                href={`/blog?page=${currentPage + 1}`}
+                className="group flex items-center gap-3 text-black hover:text-gray-600 transition-colors"
+              >
+                <span className="font-medium text-sm uppercase tracking-wider">Next</span>
+                <span className="w-10 h-10 flex items-center justify-center border-2 border-black group-hover:bg-black group-hover:text-white transition-all duration-300">
+                  <FiChevronRight className="w-5 h-5" />
+                </span>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-3 text-gray-300 cursor-not-allowed">
+                <span className="font-medium text-sm uppercase tracking-wider">Next</span>
+                <span className="w-10 h-10 flex items-center justify-center border-2 border-gray-200">
+                  <FiChevronRight className="w-5 h-5" />
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

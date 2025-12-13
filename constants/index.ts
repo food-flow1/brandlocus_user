@@ -43,6 +43,10 @@ import betterCard from "@/assets/images/business/cards/better.svg";
 import transformCard from "@/assets/images/business/cards/transform.svg";
 
 
+//teams
+import charles from "@/assets/images/teams/charles.png";
+import zee from "@/assets/images/teams/Zee.jpg";
+
 //icons
 import logo from "@/assets/icons/logo.svg";
 import star from "@/assets/icons/star.svg";
@@ -89,6 +93,10 @@ export const images = {
   desk1,
   desk2,
   desk3,
+
+  //teams
+  charles,
+  zee,
 };
 
 export const icons = {

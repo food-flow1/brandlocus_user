@@ -42,7 +42,7 @@ const Navbar = () => {
     { label: "Business Quest", href: ROUTES.BUSINESS_QUEST },
     { label: "Contact", href: ROUTES.CONTACT },
     { label: "Blog", href: ROUTES.BLOG },
-    { label: "Join the waitlist", href: ROUTES.JOIN_THE_WAITLIST },
+    // { label: "Join the waitlist", href: ROUTES.JOIN_THE_WAITLIST },
   ];
 
   const serviceItems = [

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -9,82 +9,32 @@ import CustomInput from '@/components/forms/CustomInput';
 import { ROUTES } from '@/constants/routes';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useLogin } from '@/lib/api';
+import { useForgotPassword } from '@/lib/api';
 import Navbar from '@/components/layouts/Navbar';
 import ChatFooter from '../../(chatBox)/Footer';
 import DecorativeBackground from '@/components/common/DecorativeBackground';
 
-interface LoginFormValues {
+interface ForgetPasswordFormValues {
     email: string;
-    password: string;
 }
 
-const LoginPage = () => {
+const ForgetPasswordPage = () => {
     const router = useRouter();
-    const login = useLogin();
+    const forgotPassword = useForgotPassword();
     const isSubmittingRef = useRef(false);
-    const formRef = useRef<HTMLFormElement>(null);
-
-    // Clear any autofilled values on mount and ensure inputs are editable
-    useEffect(() => {
-        const clearAutofill = () => {
-            // Find all inputs in the form
-            const inputs = document.querySelectorAll('input[type="email"], input[type="password"], input[type="text"]');
-            inputs.forEach((input) => {
-                const htmlInput = input as HTMLInputElement;
-                // Ensure input is not disabled or readonly
-                htmlInput.disabled = false;
-                htmlInput.readOnly = false;
-                // Force editable state
-                htmlInput.style.pointerEvents = 'auto';
-                htmlInput.style.userSelect = 'text';
-                (htmlInput.style as any).webkitUserSelect = 'text';
-                htmlInput.style.cursor = 'text';
-                // Clear any autofilled value if it exists
-                if (htmlInput.value && htmlInput.matches(':-webkit-autofill')) {
-                    htmlInput.value = '';
-                }
-            });
-        };
-
-        // Clear on mount
-        clearAutofill();
-
-        // Also clear after a short delay to catch late autofill
-        const timeout = setTimeout(clearAutofill, 100);
-
-        // Listen for autofill events
-        const handleAutofill = () => {
-            clearAutofill();
-        };
-
-        window.addEventListener('load', handleAutofill);
-        document.addEventListener('DOMContentLoaded', handleAutofill);
-
-        return () => {
-            clearTimeout(timeout);
-            window.removeEventListener('load', handleAutofill);
-            document.removeEventListener('DOMContentLoaded', handleAutofill);
-        };
-    }, []);
 
     // Yup validation schema
     const validationSchema = Yup.object({
         email: Yup.string()
             .required('Email is required')
             .email('Please enter a valid email address'),
-        password: Yup.string()
-            .required('Password is required')
-            .min(6, 'Password must be at least 6 characters'),
     });
 
-    const initialValues: LoginFormValues = {
+    const initialValues: ForgetPasswordFormValues = {
         email: '',
-        password: '',
     };
 
-    const handleSubmit = async (values: LoginFormValues, { setSubmitting }: any) => {
-        // Prevent double submission
+    const handleSubmit = async (values: ForgetPasswordFormValues, { setSubmitting }: any) => {
         if (isSubmittingRef.current) {
             return;
         }
@@ -93,44 +43,32 @@ const LoginPage = () => {
         setSubmitting(true);
 
         try {
-            // Call the API
-            await login.mutateAsync({
+            await forgotPassword.mutateAsync({
                 email: values.email,
-                password: values.password,
             });
 
-            // Show success toast
-            toast.success('Login successful! Redirecting...', {
-                duration: 2000,
+            toast.success('Reset link sent! Check your email.', {
+                duration: 4000,
                 style: {
                     background: '#1a1a1a',
                     color: '#fff',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                 },
             });
-
-            // Redirect to chat box after a short delay
-            setTimeout(() => {
-                router.push(ROUTES.CHAT_BOX);
-            }, 1500);
+            
+            // Redirect to verify token page
+            router.push(`${ROUTES.VERIFY_TOKEN}?email=${encodeURIComponent(values.email)}`);
 
         } catch (error: any) {
-            console.error('Login error:', error);
-
-            // Handle specific error cases
+            console.error('Forget password error:', error);
+            
             let errorMessage = 'An error occurred. Please try again.';
-
-            if (error?.status === 401) {
-                errorMessage = 'Invalid email or password. Please try again.';
-            } else if (error?.status === 404) {
-                errorMessage = 'User not found. Please check your email.';
+            if (error?.response?.data?.message) {
+                 errorMessage = error.response.data.message;
             } else if (error?.message) {
                 errorMessage = error.message;
-            } else if (error?.errors) {
-                errorMessage = Object.values(error.errors).flat().join(', ');
             }
 
-            // Show error toast
             toast.error(errorMessage, {
                 duration: 5000,
                 style: {
@@ -188,7 +126,7 @@ const LoginPage = () => {
                             transition={{ duration: 0.6 }}
                             className="text-3xl sm:text-4xl md:text-5xl font-bold my-4 pt-6 pb-3"
                         >
-                            Welcome Back
+                            Forgot Password?
                         </motion.h1>
 
                         {/* Subtitle */}
@@ -198,7 +136,7 @@ const LoginPage = () => {
                             transition={{ duration: 0.6, delay: 0.1 }}
                             className="text-base sm:text-md text-white/70 pb-8"
                         >
-                            Sign in to continue your business journey
+                            Enter your email address to receive reset instructions
                         </motion.p>
                     </div>
 
@@ -216,7 +154,6 @@ const LoginPage = () => {
                                     transition={{ duration: 0.6, delay: 0.2 }}
                                 >
                                     <Form
-                                        ref={formRef}
                                         className="space-y-6 bg-white/8 backdrop-blur-2xl p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl relative overflow-hidden"
                                         autoComplete="off"
                                         noValidate
@@ -234,41 +171,23 @@ const LoginPage = () => {
                                                 variant="dark"
                                             />
 
-                                            {/* Password Input */}
-                                            <CustomInput
-                                                name="password"
-                                                label="Password"
-                                                type="password"
-                                                placeholder="Enter your password"
-                                                variant="dark"
-                                            />
-
-                                            <div className='flex justify-end text-white/60'>
-                                                <Link href={ROUTES.FORGET_PASSWORD}>
-                                                    Forgot Password?
-                                                </Link>
-                                            </div>
-
                                             {/* Submit Button */}
-                                            <div className='flex flex-col items-center gap-4 pt-1'>
+                                            <div className='flex flex-col items-center gap-4 pt-4'>
                                                 <button
                                                     type="submit"
-                                                    disabled={isSubmitting || login.isPending}
+                                                    disabled={isSubmitting || forgotPassword.isPending}
                                                     className="w-full text-black bg-white/80 font-medium rounded-full px-8 py-3 cursor-pointer text-base sm:text-lg hover:bg-white hover:text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
-                                                    {isSubmitting || login.isPending ? 'Logging in...' : 'Sign In'}
+                                                    {isSubmitting || forgotPassword.isPending ? 'Sending...' : 'Send Reset Link'}
                                                 </button>
 
-                                                {/* Register Link */}
-                                                <p className="text-sm text-white/60">
-                                                    Don't have an account?{' '}
-                                                    <Link
-                                                        href={ROUTES.AI_POWERED}
-                                                        className="text-white/90 hover:text-white underline transition-colors"
-                                                    >
-                                                        Sign up
-                                                    </Link>
-                                                </p>
+                                                {/* Back to Login Link */}
+                                                <Link
+                                                    href={ROUTES.LOGIN}
+                                                    className="text-white/60 hover:text-white text-sm transition-colors flex items-center gap-2"
+                                                >
+                                                    ← Back to Login
+                                                </Link>
                                             </div>
                                         </div>
                                     </Form>
@@ -283,4 +202,4 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default ForgetPasswordPage;

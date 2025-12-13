@@ -21,11 +21,11 @@ interface ProfileFormValues {
     firstName: string;
     lastName: string;
     email: string;
-    gender: string;
     country: string;
     state: string;
     businessName: string;
     industryName: string;
+    businessBrief: string;
 }
 
 interface PasswordFormValues {
@@ -34,22 +34,28 @@ interface PasswordFormValues {
     newPassword: string;
 }
 
-const genderOptions: CustomSelectOption[] = [
-    { id: 'Male', label: 'Male' },
-    { id: 'Female', label: 'Female' },
-    { id: 'Other', label: 'Other' },
-    { id: 'Prefer not to say', label: 'Prefer not to say' },
+
+
+const industryOptions: CustomSelectOption[] = [
+    { id: "tech", label: "Technology" },
+    { id: "finance", label: "Finance" },
+    { id: "healthcare", label: "Healthcare" },
+    { id: "retail", label: "Retail" },
+    { id: "manufacturing", label: "Manufacturing" },
+    { id: "education", label: "Education" },
+    { id: "real-estate", label: "Real Estate" },
+    { id: "hospitality", label: "Hospitality" },
 ];
 
 const profileValidationSchema = Yup.object({
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
     email: Yup.string().email('Invalid email address').required('Email is required'),
-    gender: Yup.string().required('Gender is required'),
     country: Yup.string().required('Country is required'),
     state: Yup.string().required('State is required'),
     businessName: Yup.string().required('Business name is required'),
     industryName: Yup.string().required('Industry name is required'),
+    businessBrief: Yup.string().required('Business brief is required'),
 });
 
 const passwordValidationSchema = Yup.object({
@@ -196,11 +202,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         firstName: profile?.firstName || profile?.first_name || '',
         lastName: profile?.lastName || profile?.last_name || '',
         email: profile?.email || '',
-        gender: profile?.gender || '',
         country: profile?.country || '',
         state: profile?.state || '',
         businessName: profile?.businessName || '',
         industryName: profile?.industryName || '',
+        businessBrief: profile?.businessBrief || '',
     };
 
     const passwordInitialValues: PasswordFormValues = {
@@ -214,11 +220,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
             await updateProfile.mutateAsync({
                 firstName: values.firstName,
                 lastName: values.lastName,
-                gender: values.gender,
                 country: values.country,
                 state: values.state,
                 industryName: values.industryName,
                 businessName: values.businessName,
+                businessBrief: values.businessBrief,
+                profileImageUrl: profile?.profileImageUrl,
             });
             toast.success('Profile updated successfully!', {
                 duration: 2000,
@@ -440,9 +447,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                         className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="bg-white/5 backdrop-blur-2xl rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative pointer-events-auto border border-white/20 shadow-2xl" data-profile-modal>
-                            {/* Glass effect overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none rounded-2xl"></div>
+                        <div className="bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-2xl rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative pointer-events-auto border border-white/20 shadow-2xl" data-profile-modal>
+                            {/* Decorative elements */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-white/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-2xl pointer-events-none"></div>
+
                             {/* Close Button */}
                             <button
                                 type="button"
@@ -450,24 +459,29 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                     e.stopPropagation();
                                     onClose();
                                 }}
-                                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 transition-colors z-20"
+                                className="absolute top-4 right-4 p-2.5 rounded-xl bg-white/5 hover:bg-white/15 transition-all duration-200 z-20 border border-white/10 hover:border-white/20 group"
                             >
-                                <FiX className="w-5 h-5 text-white" />
+                                <FiX className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
                             </button>
 
                             {/* Content */}
                             <div className="p-6 sm:p-8 relative z-10">
                                 {/* Profile Picture Section */}
-                                <div className="flex flex-col items-center mb-6">
-                                    <div className="relative">
+                                <div className="flex flex-col items-center mb-8">
+                                    <motion.div
+                                        className="relative"
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
                                         {previewImage || profile.profileImageUrl ? (
                                             <img
                                                 src={previewImage || profile.profileImageUrl || ''}
                                                 alt="Profile"
-                                                className="w-24 h-24 rounded-full object-cover"
+                                                className="w-24 h-24 rounded-full object-cover ring-4 ring-white/10"
                                             />
                                         ) : (
-                                            <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center text-white font-semibold text-2xl">
+                                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center text-white font-semibold text-2xl ring-4 ring-white/10">
                                                 {getInitials()}
                                             </div>
                                         )}
@@ -491,19 +505,39 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                 <FiCamera className="w-4 h-4 text-black" />
                                             )}
                                         </button>
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-white mt-4">{getFullName()}</h2>
+                                    </motion.div>
+                                    <motion.h2
+                                        className="text-2xl font-bold text-white mt-4"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.15 }}
+                                    >
+                                        {getFullName()}
+                                    </motion.h2>
+                                    <motion.p
+                                        className="text-sm text-white/50 mt-1"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.2 }}
+                                    >
+                                        {profile?.email}
+                                    </motion.p>
                                 </div>
 
                                 {/* Tabs */}
-                                <div className="flex gap-4 mb-6 border-b border-white/10">
+                                <motion.div
+                                    className="flex gap-2 mb-6 p-1 bg-white/5 rounded-xl border border-white/10"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.25 }}
+                                >
                                     <button
                                         type="button"
                                         onClick={() => setActiveTab('profile')}
-                                        className={`pb-3 px-4 font-medium transition-colors ${
+                                        className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
                                             activeTab === 'profile'
-                                                ? 'text-white border-b-2 border-white'
-                                                : 'text-white/50 hover:text-white/70'
+                                                ? 'bg-white/15 text-white border border-white/20'
+                                                : 'text-white/50 hover:text-white/70 hover:bg-white/5 border border-transparent'
                                         }`}
                                     >
                                         Profile
@@ -511,15 +545,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                     <button
                                         type="button"
                                         onClick={() => setActiveTab('password')}
-                                        className={`pb-3 px-4 font-medium transition-colors ${
+                                        className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${
                                             activeTab === 'password'
-                                                ? 'text-white border-b-2 border-white'
-                                                : 'text-white/50 hover:text-white/70'
+                                                ? 'bg-white/15 text-white border border-white/20'
+                                                : 'text-white/50 hover:text-white/70 hover:bg-white/5 border border-transparent'
                                         }`}
                                     >
                                         Password
                                     </button>
-                                </div>
+                                </motion.div>
 
                                 {/* Profile Form */}
                                 {activeTab === 'profile' && (
@@ -533,7 +567,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                         const selectedCountry = countryOptions.find(opt => opt.id === values.country);
                                         const stateOptions = getStateOptions(values.country);
                                         const selectedState = stateOptions.find(opt => opt.id === values.state);
-                                        const selectedGender = genderOptions.find(opt => opt.id === values.gender);
+                                        const selectedIndustry = industryOptions.find(opt => opt.id === values.industryName);
 
                                         return (
                                             <Form className="space-y-4">
@@ -604,22 +638,23 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                     </div>
                                                 </div>
 
-                                                {/* Gender and Business Name - Grid */}
+                                                {/* Industry Name and Business Name - Grid */}
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <label className="block text-sm font-medium text-white/70">
-                                                            Gender
+                                                            Industry Name
                                                         </label>
                                                         <CustomSelect
-                                                            options={genderOptions}
-                                                            selected={selectedGender || null}
+                                                            options={industryOptions}
+                                                            selected={selectedIndustry || null}
                                                             onChange={(value) => {
-                                                                setFieldValue('gender', value.id);
+                                                                setFieldValue('industryName', value.id);
                                                             }}
-                                                            placeholder="Select gender"
+                                                            placeholder="Select industry"
                                                             variant="dark"
+                                                            searchable={true}
                                                         />
-                                                        <ErrorMessage name="gender">
+                                                        <ErrorMessage name="industryName">
                                                             {(msg) => <p className="text-xs text-red-400">{msg}</p>}
                                                         </ErrorMessage>
                                                     </div>
@@ -631,19 +666,39 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                     />
                                                 </div>
 
+
+
+                                                {/* Business Brief - Textarea */}
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-medium text-white/70">
+                                                        Tell us about your business (A business brief)
+                                                    </label>
+                                                    <textarea
+                                                        name="businessBrief"
+                                                        value={values.businessBrief}
+                                                        onChange={(e) => setFieldValue('businessBrief', e.target.value)}
+                                                        placeholder="Describe your business..."
+                                                        rows={4}
+                                                        className="w-full rounded-2xl border px-4 py-3 text-sm sm:text-base bg-black/40 border-white/10 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 resize-none"
+                                                    />
+                                                    <ErrorMessage name="businessBrief">
+                                                        {(msg) => <p className="text-xs text-red-400">{msg}</p>}
+                                                    </ErrorMessage>
+                                                </div>
+
                                                 {/* Action Buttons */}
                                                 <div className="flex gap-4 pt-4">
                                                     <button
                                                         type="button"
                                                         onClick={onClose}
-                                                        className="flex-1 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors border border-white/20"
+                                                        className="flex-1 px-6 py-3 cursor-pointer rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors border border-white/20"
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         type="submit"
                                                         disabled={updateProfile.isPending}
-                                                        className="flex-1 px-6 py-3 rounded-xl bg-white text-black font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="flex-1 px-6 py-3 cursor-pointer rounded-xl bg-white text-black font-medium hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         {updateProfile.isPending ? 'Saving...' : 'Save changes'}
                                                     </button>

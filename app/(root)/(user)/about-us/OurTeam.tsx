@@ -2,14 +2,17 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import SectionBadge from "@/components/common/SectionBadge";
 import { HiUsers } from "react-icons/hi";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { FiX } from "react-icons/fi";
+import { images } from "@/constants";
 
 const OurTeam = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
+  const [selectedMember, setSelectedMember] = useState<{ name: string; title: string; image: any; bio: string } | null>(null);
 
   // Placeholder image URL - using a data URI for a gray placeholder
   const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500'%3E%3Crect fill='%23e5e7eb' width='400' height='500'/%3E%3C/svg%3E";
@@ -18,32 +21,20 @@ const OurTeam = () => {
     {
       name: "Charles Adetola",
       title: "Co-Founder & Lead Strategist",
-      image: "", // Empty string will trigger placeholder
+      image: images.charles,
+      bio: "Charles is the brain behind Brand Locus’ strategy engine. With years of hands-on experience in business development, branding, and project execution, he helps companies cut through noise, clarify direction, and scale with purpose. He blends creativity with disciplined strategy, turning ideas into measurable results."
     },
     {
       name: "Zainab Sanni",
       title: "Communications & Client Relations",
-      image: "",
+      image: images.zee,
+      bio: "Zainab holds a Master’s degree in Media, Communication, and Development, bringing a sharp blend of storytelling, strategic communication, and people-focused engagement to Brand Locus. She manages client relationships with clarity and warmth, ensuring every message is intentional and every interaction moves projects forward. Her insight strengthens how we communicate, connect, and deliver."
     },
     {
-      name: "Dr. Sarah Ajayi",
+      name: "Dr. Shadrah Ajayi",
       title: "HR & Legal Advisor",
       image: "",
-    },
-    {
-      name: "Zainab Sanni",
-      title: "Communications & Client Relations",
-      image: "",
-    },
-    {
-      name: "Zainab Sanni",
-      title: "Communications & Client Relations",
-      image: "",
-    },
-    {
-      name: "Zainab Sanni",
-      title: "Communications & Client Relations",
-      image: "",
+      bio: "Dr. Shadrah is a professional psychologist who brings clarity, structure, and people intelligence into every project. Her expertise in human behaviour, organizational culture, and workplace dynamics helps clients build teams that perform and environments where people thrive. Combined with her HR and legal advisory skills, she ensures decisions are both human-centered and strategically sound."
     },
   ];
 
@@ -82,7 +73,7 @@ const OurTeam = () => {
   };
 
   return (
-    <section className="w-full bg-gray-50 py-12 sm:py-16 md:py-20 lg:py-24">
+    <section className="w-full bg-gray-50 py-12 sm:py-16 md:py-20 lg:py-24 relative">
       <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
         {/* Badge */}
         <div className="flex justify-center mb-6 sm:mb-8">
@@ -121,7 +112,7 @@ const OurTeam = () => {
           {/* Cards Container */}
           <div className="overflow-hidden w-full">
             <motion.div
-              className="flex gap-6 sm:gap-8"
+              className="flex gap-6 sm:gap-8 justify-center"
               animate={{
                 x: `calc(-${currentIndex} * (25% + 1.5rem))`,
               }}
@@ -134,7 +125,8 @@ const OurTeam = () => {
               {teamMembers.map((member, index) => (
                 <div
                   key={`${member.name}-${index}`}
-                  className="relative rounded-xl sm:rounded-2xl overflow-hidden group shrink-0 w-full sm:w-1/2 lg:w-[calc(25%-1.125rem)]"
+                  className="relative rounded-xl sm:rounded-2xl overflow-hidden group shrink-0 w-full sm:w-1/2 lg:w-[calc(25%-1.125rem)] cursor-pointer"
+                  onClick={() => setSelectedMember(member)}
                 >
                   {/* Card Background with Gradient */}
                   <div className="relative h-[400px] sm:h-[450px] md:h-[500px] bg-gradient-to-b from-gray-700 to-black rounded-xl sm:rounded-2xl overflow-hidden">
@@ -169,7 +161,7 @@ const OurTeam = () => {
           </div>
 
           {/* Navigation Arrows */}
-          <div className="flex justify-center items-center gap-4 mt-8 sm:mt-10">
+          {teamMembers?.length > 4 && <div className="flex justify-center items-center gap-4 mt-8 sm:mt-10">
             <button
               onClick={prevSlide}
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors duration-200 shadow-lg"
@@ -184,9 +176,70 @@ const OurTeam = () => {
             >
               <IoChevronForward className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-          </div>
+          </div>}
         </div>
       </div>
+
+      {/* Member Details Modal */}
+      <AnimatePresence>
+        {selectedMember && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedMember(null)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999]"
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none"
+            >
+              <div className="bg-white rounded-3xl w-full max-w-lg md:max-w-2xl max-h-[90vh] overflow-y-auto relative pointer-events-auto shadow-2xl overflow-hidden flex flex-col md:flex-row">
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedMember(null)}
+                  className="absolute top-4 right-4 p-2 rounded-full bg-black/10 hover:bg-black/20 text-black transition-colors z-20"
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+
+                {/* Left Side (Image) - Mobile: Top */}
+                <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-gray-100 shrink-0">
+                  <Image
+                    src={selectedMember.image || placeholderImage}
+                    alt={selectedMember.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+
+                {/* Right Side (Content) - Mobile: Bottom */}
+                <div className="w-full md:w-3/5 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
+                  <div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                      {selectedMember.name}
+                    </h3>
+                    <p className="text-sm sm:text-base font-medium text-gray-500 uppercase tracking-wide mb-6">
+                      {selectedMember.title}
+                    </p>
+                    <div className="prose prose-sm sm:prose-base text-gray-600 leading-relaxed">
+                      <p>{selectedMember.bio}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

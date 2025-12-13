@@ -16,5 +16,10 @@ export const ROUTES = {
 
     CHAT_BOX: "/chat-box",
     AI_POWERED: "/ai-powered",
+    SET_PASSWORD: "/set-password",
+    RESET_PASSWORD: "/reset-password",
+    FORGET_PASSWORD: "/forget-password",
+    VERIFY_TOKEN: "/verify-token",
     LOGIN: "/login",
+    BOOK_CONSULTATION: "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ3HVns2f9bP13dwP41pRV5TEVahd2n2oNVCQnGx-k7cxG63_dRxrC3_6plKSO_IOZHb0p916kGQ",
 }

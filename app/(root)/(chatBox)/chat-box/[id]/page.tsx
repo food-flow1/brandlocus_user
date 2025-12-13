@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { FiSend, FiLoader, FiCopy, FiCheck, FiEdit2, FiX, FiSave } from 'react-icons/fi';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiSend, FiLoader, FiCopy, FiCheck, FiEdit2, FiX, FiSave, FiChevronDown, FiRefreshCw } from 'react-icons/fi';
+import { HiSparkles } from 'react-icons/hi2';
 import { useParams, useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import ChatSidebar from '../components/ChatSidebar';
@@ -78,11 +79,37 @@ const ConversationPage = () => {
     const [allMessages, setAllMessages] = useState<any[]>([]);
     const [pagination, setPagination] = useState<{ page: number; size: number; totalElements: number; totalPages: number; last: boolean } | null>(null);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [showScrollToBottom, setShowScrollToBottom] = useState(false);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const scrollPositionRef = useRef<number>(0);
 
+    // Track the message count and IDs before sending to detect truly new messages
+    const messageCountBeforeSendRef = useRef<number>(0);
+    const messageIdsBeforeSendRef = useRef<Set<string | number>>(new Set());
+    const lastStreamedMessageIdRef = useRef<string | number | null>(null);
+
     // Toggle sidebar for mobile
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+    // Scroll to bottom handler
+    const scrollToBottom = useCallback(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, []);
+
+    // Track scroll position to show/hide scroll to bottom button
+    useEffect(() => {
+        const container = messagesContainerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
+            setShowScrollToBottom(!isNearBottom);
+        };
+
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, []);
 
     // Fetch messages from API
     const { data: apiData, isLoading: isInitialLoading, error: conversationError, refetch: refetchMessages } = useChatById(conversationId, currentPage, 10);
@@ -157,43 +184,18 @@ const ConversationPage = () => {
         }
     }, [conversationError, messages, isInitialLoading, router]);
 
-    // Stream text character by character
+    // Render text instantly - no animation
     const streamText = React.useCallback((text: string, onComplete: () => void) => {
         // Clear any existing timeout
         if (streamingTimeoutRef.current) {
             clearTimeout(streamingTimeoutRef.current);
         }
 
-        let index = 0;
-        setStreamingMessage('');
-        setIsStreaming(true);
-
-        const stream = () => {
-            if (index < text.length) {
-                setStreamingMessage(text.substring(0, index + 1));
-                index++;
-                // Adjust speed: faster for spaces/punctuation, slower for regular chars
-                const char = text[index - 1];
-                const delay = char === ' ' || char === '.' || char === ',' || char === '!' || char === '?'
-                    ? 20
-                    : char === '\n'
-                        ? 50
-                        : 10;
-                streamingTimeoutRef.current = setTimeout(stream, delay);
-            } else {
-                setIsStreaming(false);
-                setStreamingMessage('');
-                onComplete();
-            }
-        };
-
-        stream();
+        // Show the entire message instantly
+        setStreamingMessage(text);
+        setIsStreaming(false);
+        onComplete();
     }, []);
-
-    // Track the message count and IDs before sending to detect truly new messages
-    const messageCountBeforeSendRef = useRef<number>(0);
-    const messageIdsBeforeSendRef = useRef<Set<string | number>>(new Set());
-    const lastStreamedMessageIdRef = useRef<string | number | null>(null);
 
     // Clear pending user message if it appears in the messages array (from API)
     useEffect(() => {
@@ -454,10 +456,20 @@ const ConversationPage = () => {
     if (isCheckingAuth) {
         return (
             <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-white/70">Loading...</p>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center"
+                >
+                    <div className="relative w-20 h-20 mx-auto mb-6">
+                        <div className="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-transparent border-t-white rounded-full animate-spin"></div>
+                        <div className="absolute inset-2 bg-white/5 rounded-full backdrop-blur-sm flex items-center justify-center">
+                            <HiSparkles className="w-6 h-6 text-white/60 animate-pulse" />
+                        </div>
+                    </div>
+                    <p className="text-white/60 text-sm font-medium">Loading conversation...</p>
+                </motion.div>
             </div>
         );
     }
@@ -510,7 +522,7 @@ const ConversationPage = () => {
                     <ChatSidebar currentConversationId={conversationId} isOpen={isSidebarOpen} onToggle={toggleSidebar} />
 
                     {/* Main Content Area - Account for fixed sidebar on desktop only */}
-                    <div className="flex-1 flex flex-col min-h-0 relative lg:ml-80">
+                    <div className="flex-1 flex flex-col min-h-0 relative lg:ml-80 pt-6">
                         {/* Background Decorative Elements - Fixed, not scrollable */}
                         <DecorativeBackground
                             rightText="A"
@@ -523,7 +535,7 @@ const ConversationPage = () => {
                         {/* Messages Container - Scrollable */}
                         <div
                             ref={messagesContainerRef}
-                            className="flex-1 overflow-y-auto pt-24 pb-12 sm:pt-20 sm:pb-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 relative z-10"
+                            className="flex-1 overflow-y-auto pt-28 pb-12 sm:pt-28 sm:pb-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 relative z-10"
                         >
 
                             {/* Chat Messages */}
@@ -544,19 +556,19 @@ const ConversationPage = () => {
                                 
                                 {messages && messages.length > 0 ? (
                                     // Sort messages by timestamp (oldest first) since API returns newest first
-                                    [...messages].reverse().map((msg) => (
+                                    [...messages].reverse().map((msg, index) => (
                                         <motion.div
                                             key={msg.id || msg.messageId}
-                                            initial={{ opacity: 0, y: 10 }}
+                                            initial={{ opacity: 0, y: 15 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.4, delay: index < 5 ? index * 0.05 : 0 }}
                                             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                         >
                                             <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} group relative max-w-[95%] sm:max-w-[85%] md:max-w-[80%]`}>
                                                 <div
-                                                    className={`w-full rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 ${msg.role === 'user'
-                                                        ? 'bg-white/10 text-white backdrop-blur-sm'
-                                                        : 'bg-white/5 text-white backdrop-blur-sm border border-white/10'
+                                                    className={`w-full rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 transition-all duration-300 ${msg.role === 'user'
+                                                        ? 'bg-gradient-to-br from-white/15 to-white/10 text-white backdrop-blur-sm border border-white/10 hover:border-white/20'
+                                                        : 'bg-gradient-to-br from-white/8 to-white/3 text-white backdrop-blur-sm border border-white/10 hover:border-white/15'
                                                         }`}
                                                 >
                                                     {msg.role === 'assistant' ? (
@@ -573,8 +585,39 @@ const ConversationPage = () => {
                                                                     li: ({ node, ...props }) => <li className="text-white/90 pl-1" {...props} />,
                                                                     strong: ({ node, ...props }) => <strong className="font-semibold text-white" {...props} />,
                                                                     em: ({ node, ...props }) => <em className="italic text-white/90" {...props} />,
-                                                                    code: ({ node, ...props }) => <code className="bg-white/10 px-1.5 py-0.5 rounded text-xs text-white/90 font-mono" {...props} />,
-                                                                    pre: ({ node, ...props }) => <pre className="bg-white/10 p-3 rounded-lg overflow-x-auto mb-2 text-white/90" {...props} />,
+                                                                    code: ({ node, className, children, ...props }) => {
+                                                                        const isInline = !className;
+                                                                        if (isInline) {
+                                                                            return <code className="bg-white/15 px-1.5 py-0.5 rounded text-xs text-white font-mono border border-white/10" {...props}>{children}</code>;
+                                                                        }
+                                                                        return <code className="text-white/90 font-mono text-xs" {...props}>{children}</code>;
+                                                                    },
+                                                                    pre: ({ node, children, ...props }) => {
+                                                                        const codeContent = React.Children.toArray(children).find(
+                                                                            (child: any) => child?.type === 'code' || child?.props?.node?.tagName === 'code'
+                                                                        ) as React.ReactElement<{ children?: React.ReactNode }> | undefined;
+                                                                        const codeText = codeContent?.props?.children
+                                                                            ? String(codeContent.props.children)
+                                                                            : '';
+
+                                                                        return (
+                                                                            <div className="relative group/code mb-3">
+                                                                                <pre className="bg-black/40 border border-white/10 p-4 rounded-xl overflow-x-auto text-white/90" {...props}>
+                                                                                    {children}
+                                                                                </pre>
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        navigator.clipboard.writeText(codeText);
+                                                                                        toast.success('Code copied!');
+                                                                                    }}
+                                                                                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 opacity-0 group-hover/code:opacity-100 transition-all duration-200"
+                                                                                    title="Copy code"
+                                                                                >
+                                                                                    <FiCopy className="w-3.5 h-3.5 text-white/70" />
+                                                                                </button>
+                                                                            </div>
+                                                                        );
+                                                                    },
                                                                 }}
                                                             >
                                                                 {msg.content}
@@ -634,7 +677,7 @@ const ConversationPage = () => {
                                                     
                                                     {/* Action Buttons */}
                                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        {msg.role === 'user' && editingMessageId !== (msg.id || msg.messageId) && (
+                                                        {/* {msg.role === 'user' && editingMessageId !== (msg.id || msg.messageId) && (
                                                             <button
                                                                 onClick={() => handleEditMessage((msg.id || msg.messageId || 'unknown'), msg.content)}
                                                                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
@@ -642,7 +685,7 @@ const ConversationPage = () => {
                                                             >
                                                                 <FiEdit2 className="w-3.5 h-3.5 text-white/70" />
                                                             </button>
-                                                        )}
+                                                        )} */}
                                                         <button
                                                             onClick={() => handleCopyMessage(msg.content, (msg.id || msg.messageId || 'unknown'))}
                                                             className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
@@ -762,51 +805,82 @@ const ConversationPage = () => {
                                 )}
 
                                 {/* Loading indicator for AI response (only when waiting for API, not streaming, and no streaming message) */}
-                                {(isLoading || startChat.isPending) && !isStreaming && !streamingMessage && pendingUserMessage && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="flex justify-start"
-                                    >
-                                        <div className="max-w-[95%] sm:max-w-[85%] md:max-w-[80%] rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 bg-white/5 backdrop-blur-sm border border-white/10">
-                                            <div className="flex items-center space-x-2">
-                                                <div className="flex space-x-1">
-                                                    <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                                    <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                                    <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                <AnimatePresence>
+                                    {(isLoading || startChat.isPending) && !isStreaming && !streamingMessage && pendingUserMessage && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="flex justify-start"
+                                        >
+                                            <div className="max-w-[95%] sm:max-w-[85%] md:max-w-[80%] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-br from-white/8 to-white/3 backdrop-blur-sm border border-white/10">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="relative">
+                                                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                                                            <HiSparkles className="w-4 h-4 text-white/70 animate-pulse" />
+                                                        </div>
+                                                        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-white/40 animate-spin"></div>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-white/80 text-sm font-medium">Mr. A is thinking...</span>
+                                                        <div className="flex space-x-1 mt-1">
+                                                            <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                                            <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                                            <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <span className="text-white/50 text-xs sm:text-sm">Mr. A is thinking...</span>
                                             </div>
-                                        </div>
-                                    </motion.div>
-                                )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
                                 {/* Scroll anchor */}
                                 <div ref={messagesEndRef} />
                             </div>
                         </div>
 
+                        {/* Scroll to Bottom Button */}
+                        <AnimatePresence>
+                            {showScrollToBottom && (
+                                <motion.button
+                                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 20, scale: 0.8 }}
+                                    transition={{ duration: 0.2 }}
+                                    onClick={scrollToBottom}
+                                    className="fixed bottom-24 right-6 z-30 p-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 transition-all duration-300 shadow-lg group"
+                                    aria-label="Scroll to bottom"
+                                >
+                                    <FiChevronDown className="w-5 h-5 text-white group-hover:translate-y-0.5 transition-transform" />
+                                </motion.button>
+                            )}
+                        </AnimatePresence>
+
                         {/* Input Field - Fixed at bottom */}
-                        <div className="sticky bottom-0 z-20 bg-[#0A0A0A]/95 backdrop-blur-xl border-t border-white/10 py-3 sm:py-4 px-3 sm:px-4 md:px-6 lg:px-8">
+                        <div className="sticky bottom-0 z-20 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/98 to-transparent pt-4 pb-3 sm:pb-4 px-3 sm:px-4 md:px-6 lg:px-8">
                             <div className="max-w-4xl mx-auto">
-                                <form onSubmit={handleSubmit} className="relative">
-                                    <div className="relative">
+                                <form onSubmit={handleSubmit} className="relative group">
+                                    {/* Glowing border effect */}
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-white/10 via-white/5 to-white/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                                    <div className="relative flex items-center">
                                         <input
                                             type="text"
                                             value={message}
                                             onChange={(e) => setMessage(e.target.value)}
-                                            placeholder="Ask me any Business questions"
-                                            className="w-full rounded-xl sm:rounded-2xl border border-white/20 bg-white/8 backdrop-blur-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 px-3 sm:px-4 py-2.5 sm:py-3 md:py-4 pr-10 sm:pr-12 text-sm sm:text-base"
+                                            placeholder="Ask me any business question..."
+                                            className="w-full rounded-xl sm:rounded-2xl border border-white/20 bg-black/60 backdrop-blur-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 px-4 sm:px-5 py-3 sm:py-3.5 md:py-4 pr-12 sm:pr-14 text-sm sm:text-base transition-all duration-300"
                                         />
                                         <button
                                             type="submit"
                                             disabled={!message.trim() || (isLoading && !!pendingUserMessage && !isStreaming) || (startChat.isPending && !!pendingUserMessage && !isStreaming)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 group/btn"
                                         >
                                             {((isLoading && !!pendingUserMessage && !isStreaming) || (startChat.isPending && !!pendingUserMessage && !isStreaming)) ? (
                                                 <FiLoader className="w-5 h-5 text-white animate-spin" />
                                             ) : (
-                                                <FiSend className="w-5 h-5 text-white" />
+                                                <FiSend className="w-5 h-5 text-white group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-200" />
                                             )}
                                         </button>
                                     </div>

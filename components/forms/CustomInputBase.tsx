@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { LuEye, LuEyeClosed } from "react-icons/lu";
 
 interface CustomInputBaseProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "name"> {
@@ -65,17 +66,30 @@ const CustomInputBase: React.FC<CustomInputBaseProps> = ({
         />
 
         {isPassword && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className={`absolute cursor-pointer right-4 top-1/2 -translate-y-1/2 ${
-              variant === "dark"
-                ? "text-white/70 hover:text-white"
-                : "text-gray-500 hover:text-gray-700"
-            } transition-colors`}
-          >
-            {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-          </button>
+          // <button
+          //   type="button"
+          //   onClick={() => setShowPassword(!showPassword)}
+          //   className={`absolute cursor-pointer right-4 top-1/2 -translate-y-1/2 ${
+          //     variant === "dark"
+          //       ? "text-white/70 hover:text-white"
+          //       : "text-gray-500 hover:text-gray-700"
+          //   } transition-colors`}
+          // >
+          //   {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+          // </button>
+
+            <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute cursor-pointer bg-black/40 text-white rounded-lg p-2 right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {!showPassword ? (
+                 <LuEye />
+                ) : (
+                  <LuEyeClosed />
+                )}
+              </button>
         )}
       </div>
       {error && (

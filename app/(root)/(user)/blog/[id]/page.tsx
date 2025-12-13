@@ -1,289 +1,177 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { blogPosts } from "@/constants/data";
+import { notFound } from "next/navigation";
+import { scrapePost, scrapeUpdates } from "@/lib/scrapeUpdates";
 import Unlock from "../../home/Unlock";
+import BlogCard from "@/components/blog/BlogCard";
+import { icons } from "@/constants";
 
-const BlogDetailPage = () => {
-    const params = useParams();
-    const blogId = params?.id as string;
+// Revalidate every hour
+export const revalidate = 3600;
 
-    // For now, get the first blog post (you can enhance this to fetch by ID)
-    const blogPost = blogPosts[0] || blogPosts[parseInt(blogId) || 0];
+interface BlogDetailPageProps {
+    params: Promise<{ id: string }>;
+}
 
-    const tableOfContents = [
-        "Overview",
-        "Final Thought",
-    ];
+const BlogDetailPage = async ({ params }: BlogDetailPageProps) => {
+    const { id: slug } = await params;
 
-    const sections = [
-        {
-            number: 1,
-            title: "Immediate Relief with Solar Solutions",
-            content: "Solar companies can provide immediate relief to businesses and households struggling with frequent power outages. By offering quick installation of solar panels and battery storage systems, companies can help customers maintain productivity and daily operations even during grid failures."
-        },
-        {
-            number: 2,
-            title: "Long-Term Energy Independence",
-            content: "Beyond immediate relief, solar energy offers a path to long-term energy independence. Companies can develop comprehensive solar solutions that reduce reliance on the national grid, providing customers with predictable energy costs and sustainable power generation."
-        },
-        {
-            number: 3,
-            title: "Community Engagement and Education",
-            content: "Solar companies have an opportunity to engage with communities, educating them about the benefits of renewable energy. Through workshops, demonstrations, and community solar projects, companies can build trust and expand their customer base while contributing to environmental sustainability."
-        },
-        {
-            number: 4,
-            title: "Government and Policy Advocacy",
-            content: "The solar industry can work with government bodies to advocate for favorable policies, subsidies, and incentives that make solar energy more accessible. By participating in policy discussions, companies can help shape a more renewable energy-friendly regulatory environment."
-        },
-        {
-            number: 5,
-            title: "Technological Innovation",
-            content: "There's significant opportunity for innovation in solar technology, including more efficient panels, better battery storage solutions, and smart grid integration. Companies that invest in R&D can position themselves as leaders in the Nigerian solar market."
-        }
-    ];
+    // Fetch real post data
+    const post = await scrapePost(slug);
+
+    if (!post) {
+        notFound();
+    }
+
+    // Fetch related posts (first 3 from recent updates, excluding current)
+    const relatedPostsData = await scrapeUpdates(1);
+    const relatedPosts = relatedPostsData.updates
+        .filter(p => p.slug !== slug)
+        .slice(0, 3);
 
     return (
-        <article className="w-full bg-white pt-8 sm:pt-12 md:pt-16 lg:pt-20">
-            <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10 sm:pt-16 pt-20">
-
-                {/* Left Side - Content */}
-                <div className="space-y-6 flex flex-col sm:items-start items-center sm:justify-start justify-center sm:w-[70%] w-full mb-16">
-                    {/* Category Tag */}
-                    <motion.span
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="inline-flex items-center px-4 border border-gray-300 py-2 rounded-full text-xs sm:text-sm font-medium bg-blue-50 text-gray-700"
-                    >
-                        {blogPost.category}
-                    </motion.span>
-
-                    {/* Title */}
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-3xl text-center sm:text-start sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight"
-                    >
-                        {blogPost.title}
-                    </motion.h1>
+        <article className="w-full bg-white min-h-screen">
+            <div className="max-w-7xl mx-auto">
+                {/* Hero Section */}
+                <div className="border-b border-gray-100">
+                    <div className="px-6 sm:px-8 lg:pr-12 pt-20 lg:pt-32 pb-8 lg:pb-10">
+                        <header className="space-y-8">
+                            {/* Title */}
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-black leading-[1.1] tracking-tight">
+                                {post.title}
+                            </h1>
+                        </header>
+                    </div>
                 </div>
-
-
-                <section className="flex flex-col sm:flex-row gap-10">
-                    <aside className="sm:w-[20%] w-full flex flex-col sm:items-start items-center sm:text-left text-center">
-                        {/* Author Info */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                            className="flex flex-col items-center gap-3 mb-6 sm:mb-8"
-                        >
-                            <div className="w-24 h-24 sm:w-10 sm:h-10 rounded-full bg-[#D9D9D9] flex items-center justify-center">
-                                <span className="text-gray-600 text-base sm:text-sm font-medium">BL</span>
+                <section className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+                    {/* Left Sidebar - Sticky */}
+                    <aside className="lg:w-[25%] w-full px-6 sm:px-8 lg:px-0 lg:pl-12 pt-10 pb-12 lg:pb-0">
+                        <div className="lg:sticky lg:top-32 space-y-12">
+                            {/* Back Link */}
+                            <div>
+                                <Link
+                                    href="/blog"
+                                    className="group inline-flex items-center text-sm font-medium text-gray-400 hover:text-black transition-all duration-300"
+                                >
+                                    <span className="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
+                                    Back to Updates
+                                </Link>
                             </div>
-                            <div className="text-center sm:text-left">
-                                <p className="font-bold text-gray-900 text-lg sm:text-base">Brand Locus</p>
-                                <p className="text-sm text-gray-600">Content Writer</p>
-                            </div>
-                        </motion.div>
 
-                        {/* Table of Contents */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.3 }}
-                            className="space-y-2 w-full sm:w-auto"
-                        >
-                            <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wider text-center sm:text-left">TABLE OF CONTENT</h3>
-                            <ul className="space-y-1">
-                                {tableOfContents.map((item, index) => (
-                                    <li key={index} className={`text-sm flex items-center gap-2 justify-center sm:justify-start ${
-                                        index === 0 ? 'text-gray-900 font-bold' : 'text-gray-600'
-                                    }`}>
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="flex gap-1.5 mt-6 justify-center sm:justify-start">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="w-6 h-6 rounded-full bg-[#D9D9D9]"></div>
-                                ))}
+                            {/* Author Card */}
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                        BL
+                                    </div>
+                                    <div>
+                                        <p className="text-base font-bold text-black">Brand Locus</p>
+                                        <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Editorial Team</p>
+                                    </div>
+                                </div>
                             </div>
-                        </motion.div>
 
+                            {/* Meta Info */}
+                            <div className="space-y-3 pt-6 border-t border-gray-100">
+                                {post.category && (
+                                    <div>
+                                        <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Category</p>
+                                        <p className="text-sm font-semibold text-black">{post.category}</p>
+                                    </div>
+                                )}
+                                {post.dateDisplay && (
+                                    <div>
+                                        <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Published</p>
+                                        <p className="text-sm text-gray-600">{post.dateDisplay}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </aside>
 
-                    <aside className="sm:w-[80%] w-full">
-                        {/* Right Side - Image */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.5 }}
-                            className="relative w-full h-[400px] lg:h-[500px] rounded-xl overflow-hidden"
-                        >
-                            <Image
-                                src={blogPost.image}
-                                alt={blogPost.title}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 1024px) 100vw, 50vw"
-                            />
-                        </motion.div>
+                    {/* Main Content Area */}
+                    <aside className="lg:w-[75%] w-full">
 
+                        {/* Content Section */}
+                        <div className="px-6 sm:px-8 lg:pr-12 pb-16 lg:pb-24 pt-10">
+                            <div className="">
+                                <div
+                                    className="prose prose-xl max-w-none
 
-                        {/* Introduction Paragraph */}
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.4 }}
-                            className="text-base sm:text-lg text-gray-700 leading-relaxed italic py-2 px-6 my-8 border-l-4 border-gray-200"
-                        >
-                            Nigeria's power grid faces significant challenges, with frequent outages and unreliable electricity supply affecting millions of households and businesses. As the country grapples with these energy infrastructure issues, there's a growing opportunity for solar energy companies to provide sustainable, reliable alternative power solutions.
-                        </motion.p>
+                                    /* Headings - Improved hierarchy and spacing */
+                                    prose-headings:font-serif prose-headings:font-bold prose-headings:text-black prose-headings:leading-[1.2] prose-headings:tracking-tight
+                                    prose-h1:text-5xl sm:prose-h1:text-6xl prose-h1:mt-20 prose-h1:mb-10 prose-h1:pb-6 prose-h1:border-b prose-h1:border-gray-100
+                                    prose-h2:text-4xl sm:prose-h2:text-5xl prose-h2:mt-20 prose-h2:mb-8
+                                    prose-h3:text-3xl sm:prose-h3:text-4xl prose-h3:mt-16 prose-h3:mb-6
+                                    prose-h4:text-2xl sm:prose-h4:text-3xl prose-h4:mt-12 prose-h4:mb-5
 
-                        {/* Main Article Body */}
-                        <div className=" space-y-12 mb-16">
-                            {/* Section Heading */}
-                            <div>
-                                <motion.h2
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.6 }}
-                                    className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900"
-                                >
-                                    The Opportunity for Solar Companies
-                                </motion.h2>
+                                    /* Paragraphs - Enhanced readability */
+                                    prose-p:text-gray-700 prose-p:text-lg sm:prose-p:text-xl prose-p:leading-[1.9] prose-p:mb-8 prose-p:font-normal
+                                    first:prose-p:text-xl first:prose-p:sm:text-2xl first:prose-p:leading-[1.7] first:prose-p:text-gray-800 first:prose-p:mb-12
 
-                                <motion.p
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.6, delay: 0.1 }}
-                                    className="text-base sm:text-lg text-gray-700 leading-relaxed pt-4"
-                                >
-                                    The current energy crisis in Nigeria presents a significant opportunity for solar companies to step in and provide much-needed solutions. Here are five key areas where solar companies can make a meaningful impact:
-                                </motion.p>
-                            </div>
+                                    /* Links - Modern styling */
+                                    prose-a:text-black prose-a:font-medium prose-a:no-underline prose-a:border-b-2 prose-a:border-gray-300 prose-a:transition-all prose-a:duration-200
+                                    hover:prose-a:border-black hover:prose-a:text-black
 
-                            {/* Numbered Sections */}
-                            <div className="space-y-8">
-                                {sections.map((section, index) => (
-                                    <motion.div
-                                        key={index}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-                                        className="space-y-3"
-                                    >
-                                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-                                            {section.number}. {section.title}
-                                        </h3>
-                                        <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                                            {section.content}
-                                        </p>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </div>
+                                    /* Strong and emphasis */
+                                    prose-strong:text-black prose-strong:font-bold prose-strong:tracking-tight
+                                    prose-em:text-gray-800 prose-em:italic
 
-                        {/* Final Thoughts Section */}
-                        <div className="space-y-8 mb-16">
-                            <motion.h2
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6 }}
-                                className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900"
-                            >
-                                Final Thoughts
-                            </motion.h2>
+                                    /* Blockquotes - Editorial style */
+                                    prose-blockquote:border-l-[8px] prose-blockquote:border-black prose-blockquote:pl-10 prose-blockquote:pr-8 prose-blockquote:py-8 prose-blockquote:my-16
+                                    prose-blockquote:text-2xl sm:prose-blockquote:text-3xl prose-blockquote:italic prose-blockquote:font-serif prose-blockquote:text-gray-800 prose-blockquote:leading-[1.5]
+                                    prose-blockquote:bg-gray-50/50 prose-blockquote:rounded-r-lg
 
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.2 }}
-                                className="relative w-full h-[300px] rounded-xl overflow-hidden"
-                            >
-                                <Image
-                                    src={blogPost.image}
-                                    alt="Solar installation"
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 1024px) 100vw, 50vw"
+                                    /* Lists - Better spacing */
+                                    prose-ul:my-12 prose-ul:space-y-4 prose-ol:my-12 prose-ol:space-y-4
+                                    prose-li:text-gray-700 prose-li:text-lg sm:prose-li:text-xl prose-li:leading-[1.8] prose-li:pl-3 prose-li:mb-3
+                                    prose-li:marker:text-black prose-li:marker:font-bold
+
+                                    /* Images - Premium feel */
+                                    prose-img:!w-full prose-img:!max-w-none prose-img:h-auto prose-img:rounded-xl prose-img:my-20 prose-img:shadow-2xl prose-img:ring-1 prose-img:ring-gray-100
+
+                                    /* Code blocks */
+                                    prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-base prose-code:font-mono prose-code:before:content-[''] prose-code:after:content-['']
+                                    prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:my-12 prose-pre:shadow-xl
+
+                                    /* Horizontal rules */
+                                    prose-hr:border-gray-200 prose-hr:my-20 prose-hr:border-t-2
+
+                                    /* Tables */
+                                    prose-table:my-12 prose-table:border-collapse
+                                    prose-th:bg-gray-50 prose-th:text-black prose-th:font-bold prose-th:text-left prose-th:p-4 prose-th:border prose-th:border-gray-200
+                                    prose-td:p-4 prose-td:border prose-td:border-gray-200 prose-td:text-gray-700
+
+                                    /* Global text colors */
+                                    [&_*]:text-gray-700
+                                    [&_h1]:text-black [&_h2]:text-black [&_h3]:text-black [&_h4]:text-black [&_h5]:text-black [&_h6]:text-black
+                                    [&_strong]:text-black [&_b]:text-black
+                                    [&_th]:text-black"
+                                    dangerouslySetInnerHTML={{ __html: post.content || '' }}
                                 />
-                            </motion.div>
-
-                            <motion.p
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.3 }}
-                                className="text-base sm:text-lg text-gray-700 leading-relaxed italic py-2 px-6 my-8 border-l-4 border-gray-200"
-                            >
-                                The challenges facing Nigeria's power grid are significant, but they also represent a tremendous opportunity for solar companies. By providing immediate relief, long-term solutions, community engagement, policy advocacy, and technological innovation, solar companies can not only build successful businesses but also contribute to a more sustainable and reliable energy future for Nigeria.
-                            </motion.p>
+                            </div>
                         </div>
+
 
                     </aside>
                 </section>
 
-                {/* More Articles Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="space-y-6"
-                >
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">More Articles</h2>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {blogPosts.slice(0, 3).map((post: any, index: number) => (
-                            <Link
-                                key={index}
-                                href={`/blog/${index}`}
-                                className="group"
-                            >
-                                <motion.article
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                                    className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all cursor-pointer"
-                                >
-                                    <div className="relative w-full aspect-3/2 overflow-hidden rounded-t-xl">
-                                        <Image
-                                            src={post.image}
-                                            alt={post.title}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                        />
-                                    </div>
-                                    <div className="p-4 sm:p-5 space-y-3">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-blue-50 text-blue-700">
-                                            {post.category}
-                                        </span>
-                                        <h3 className="text-base sm:text-lg font-bold text-gray-800 leading-tight group-hover:text-gray-900 transition-colors">
-                                            {post.title}
-                                        </h3>
-                                    </div>
-                                </motion.article>
-                            </Link>
-                        ))}
+                {/* Related Posts Section */}
+                {relatedPosts.length > 0 && (
+                    <div className="border-t border-gray-200 pt-16 container">
+                        <h2 className="text-3xl font-serif font-bold text-black mb-12">Related Articles</h2>
+
+                        <div className="grid md:grid-cols-3 gap-8">
+                            {relatedPosts.map((relatedPost, index) => (
+                                <BlogCard key={relatedPost.slug} post={relatedPost} index={index} />
+                            ))}
+                        </div>
                     </div>
-                </motion.div>
+                )}
             </div>
 
+            {/* Footer Section */}
             <Unlock />
         </article>
     );

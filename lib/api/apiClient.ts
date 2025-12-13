@@ -88,7 +88,7 @@ const createApiClient = (): AxiosInstance => {
           message: "Network error. Please check your internet connection.",
           status: 0,
         };
-        toast.error(networkError.message);
+        // Toast removed - let components handle this
         return Promise.reject(networkError);
       }
 
@@ -139,7 +139,7 @@ const createApiClient = (): AxiosInstance => {
           message: errorMessage || "The requested resource was not found.",
           status: 404,
         };
-        toast.error(notFoundError.message);
+        // Toast removed - let components handle this
         return Promise.reject(notFoundError);
       }
 
@@ -150,7 +150,7 @@ const createApiClient = (): AxiosInstance => {
           status: 400,
           errors: (data as any)?.errors,
         };
-        toast.error(badRequestError.message);
+        // Toast removed - let components handle this
         return Promise.reject(badRequestError);
       }
 
@@ -160,7 +160,7 @@ const createApiClient = (): AxiosInstance => {
           message: errorMessage || "A conflict occurred. The resource may already exist.",
           status: 409,
         };
-        toast.error(conflictError.message);
+        // Toast removed - let components handle this
         return Promise.reject(conflictError);
       }
 
@@ -171,7 +171,7 @@ const createApiClient = (): AxiosInstance => {
           status: 422,
           errors: (data as any)?.errors,
         };
-        toast.error(validationError.message);
+        // Toast removed - let components handle this
         return Promise.reject(validationError);
       }
 
@@ -181,7 +181,7 @@ const createApiClient = (): AxiosInstance => {
           message: errorMessage || "Too many requests. Please try again later.",
           status: 429,
         };
-        toast.error(rateLimitError.message);
+        // Toast removed - let components handle this
         return Promise.reject(rateLimitError);
       }
 
@@ -191,7 +191,7 @@ const createApiClient = (): AxiosInstance => {
           message: "Server error. Please try again later.",
           status,
         };
-        toast.error(serverError.message);
+        // Toast removed - let components handle this
         return Promise.reject(serverError);
       }
 
@@ -201,7 +201,7 @@ const createApiClient = (): AxiosInstance => {
         status,
         errors: (data as any)?.errors,
       };
-      toast.error(apiError.message);
+      // Toast removed - let components handle this
 
       return Promise.reject(apiError);
     }

@@ -39,13 +39,13 @@ const Reviews = () => {
       title: "CEO",
       company: "MIT Africa",
     },
-    {
-      rating: 5,
-      text: "Working with Brand Locus has been a game-changer for our organization. Highly recommended!",
-      name: "John Doe",
-      title: "Founder",
-      company: "Tech Innovations",
-    },
+    // {
+    //   rating: 5,
+    //   text: "Working with Brand Locus has been a game-changer for our organization. Highly recommended!",
+    //   name: "John Doe",
+    //   title: "Founder",
+    //   company: "Tech Innovations",
+    // },
   ];
 
   return (
