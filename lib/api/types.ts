@@ -104,10 +104,10 @@ export interface ForgetPasswordPayload {
 }
 
 export interface ResetPasswordPayload {
-  email: string;
   otp: string;
   password: string;
-  confirmPassword?: string;
+  confirmPassword: string;
+  email?: string;
 }
 
 export interface ChangePasswordPayload {

@@ -21,7 +21,6 @@ interface ProfileFormValues {
     firstName: string;
     lastName: string;
     email: string;
-    gender: string;
     country: string;
     state: string;
     businessName: string;
@@ -35,12 +34,7 @@ interface PasswordFormValues {
     newPassword: string;
 }
 
-const genderOptions: CustomSelectOption[] = [
-    { id: 'Male', label: 'Male' },
-    { id: 'Female', label: 'Female' },
-    { id: 'Other', label: 'Other' },
-    { id: 'Prefer not to say', label: 'Prefer not to say' },
-];
+
 
 const industryOptions: CustomSelectOption[] = [
     { id: "tech", label: "Technology" },
@@ -57,7 +51,6 @@ const profileValidationSchema = Yup.object({
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
     email: Yup.string().email('Invalid email address').required('Email is required'),
-    gender: Yup.string().required('Gender is required'),
     country: Yup.string().required('Country is required'),
     state: Yup.string().required('State is required'),
     businessName: Yup.string().required('Business name is required'),
@@ -209,7 +202,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         firstName: profile?.firstName || profile?.first_name || '',
         lastName: profile?.lastName || profile?.last_name || '',
         email: profile?.email || '',
-        gender: profile?.gender || '',
         country: profile?.country || '',
         state: profile?.state || '',
         businessName: profile?.businessName || '',
@@ -228,7 +220,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
             await updateProfile.mutateAsync({
                 firstName: values.firstName,
                 lastName: values.lastName,
-                gender: values.gender,
                 country: values.country,
                 state: values.state,
                 industryName: values.industryName,
@@ -549,7 +540,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                         const selectedCountry = countryOptions.find(opt => opt.id === values.country);
                                         const stateOptions = getStateOptions(values.country);
                                         const selectedState = stateOptions.find(opt => opt.id === values.state);
-                                        const selectedGender = genderOptions.find(opt => opt.id === values.gender);
                                         const selectedIndustry = industryOptions.find(opt => opt.id === values.industryName);
 
                                         return (
@@ -621,22 +611,23 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                     </div>
                                                 </div>
 
-                                                {/* Gender and Business Name - Grid */}
+                                                {/* Industry Name and Business Name - Grid */}
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <label className="block text-sm font-medium text-white/70">
-                                                            Gender
+                                                            Industry Name
                                                         </label>
                                                         <CustomSelect
-                                                            options={genderOptions}
-                                                            selected={selectedGender || null}
+                                                            options={industryOptions}
+                                                            selected={selectedIndustry || null}
                                                             onChange={(value) => {
-                                                                setFieldValue('gender', value.id);
+                                                                setFieldValue('industryName', value.id);
                                                             }}
-                                                            placeholder="Select gender"
+                                                            placeholder="Select industry"
                                                             variant="dark"
+                                                            searchable={true}
                                                         />
-                                                        <ErrorMessage name="gender">
+                                                        <ErrorMessage name="industryName">
                                                             {(msg) => <p className="text-xs text-red-400">{msg}</p>}
                                                         </ErrorMessage>
                                                     </div>
@@ -648,25 +639,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                     />
                                                 </div>
 
-                                                {/* Industry Name - Full Width */}
-                                                <div className="space-y-2">
-                                                    <label className="block text-sm font-medium text-white/70">
-                                                        Industry Name
-                                                    </label>
-                                                    <CustomSelect
-                                                        options={industryOptions}
-                                                        selected={selectedIndustry || null}
-                                                        onChange={(value) => {
-                                                            setFieldValue('industryName', value.id);
-                                                        }}
-                                                        placeholder="Select industry"
-                                                        variant="dark"
-                                                        searchable={true}
-                                                    />
-                                                    <ErrorMessage name="industryName">
-                                                        {(msg) => <p className="text-xs text-red-400">{msg}</p>}
-                                                    </ErrorMessage>
-                                                </div>
+
 
                                                 {/* Business Brief - Textarea */}
                                                 <div className="space-y-2">

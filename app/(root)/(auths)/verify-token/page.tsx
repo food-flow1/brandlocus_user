@@ -22,7 +22,7 @@ const VerifyTokenPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
-    
+
     // Timer state
     const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
     const [canResend, setCanResend] = useState(false);
@@ -103,6 +103,7 @@ const VerifyTokenPage = () => {
             await authService.verifyToken({
                 email,
                 token: values.token,
+                purpose: "PASSWORD_RESET"
             });
 
             toast.success('Token verified successfully!', {
@@ -117,11 +118,11 @@ const VerifyTokenPage = () => {
             // Assuming the next step is to actually reset the password, we might need to pass the token 
             // or if the backend handles session/temp token after verify.
             // Based on typical flow, we likely go to reset-password page with email and token (as OTP/code)
-            
+
             // Wait a moment for toast then redirect
-             setTimeout(() => {
-                 router.push(`${ROUTES.RESET_PASSWORD}?email=${encodeURIComponent(email)}`);
-             }, 1000);
+            setTimeout(() => {
+                router.push(`${ROUTES.RESET_PASSWORD}?email=${encodeURIComponent(email)}&otp=${values.token}`);
+            }, 1000);
 
         } catch (error: any) {
             console.error('Verify token error:', error);
@@ -208,7 +209,7 @@ const VerifyTokenPage = () => {
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none rounded-2xl sm:rounded-3xl"></div>
                                     <div className="relative z-10 space-y-6">
-                                        
+
                                         {/* Token Input */}
                                         <div className="space-y-2">
                                             <CustomInput

@@ -193,7 +193,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
                         <>
                             <button
                                 onClick={() => setIsProfileModalOpen(true)}
-                                className="w-full flex items-center gap-3 hover:bg-white/5 rounded-lg p-2 transition-colors"
+                                className="w-full cursor-pointer flex items-center gap-3 hover:bg-white/5 rounded-lg p-2 transition-colors"
                             >
                                 {/* Avatar */}
                                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white font-semibold text-sm shrink-0">
@@ -223,7 +223,9 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
                                     <BiUser className="w-4 h-4 shrink-0" />
                                     <span className="text-sm font-medium">Logout </span>
                                 </div>
-                                <FiLogOut size={25} color='white' className="text-white bg-red-500/30 rounded-lg p-3" />
+                                <div className="bg-red-500/30 rounded-lg p-2 flex items-center justify-center">
+                                    <FiLogOut size={20} className="text-white" />
+                                </div>
                             </button>
                         </>
                     ) : null}

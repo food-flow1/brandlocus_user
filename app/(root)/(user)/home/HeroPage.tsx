@@ -7,6 +7,7 @@ import Marquee from "react-fast-marquee";
 import { images, icons } from "@/constants";
 import TryAiAdvisorButton from "@/components/common/TryAiAdvisorButton";
 import { FiArrowUpRight } from "react-icons/fi";
+import { ROUTES } from "@/constants/routes";
 
 const HeroPage = () => {
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -80,7 +81,10 @@ const HeroPage = () => {
                             <TryAiAdvisorButton className="group w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-black text-white rounded-full text-sm sm:text-base font-medium hover:bg-gray-900 min-w-0 sm:min-w-[220px] md:min-w-[250px]" />
 
                             {/* Book a Free Consultation Button */}
-                            <button className="flex items-center cursor-pointer justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-white border border-gray-500 text-black rounded-full text-sm sm:text-base font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto sm:min-w-[180px] md:min-w-[200px]">
+                            <button 
+                                onClick={() => window.open(ROUTES.BOOK_CONSULTATION, '_blank')}
+                                className="flex items-center cursor-pointer justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-white border border-gray-500 text-black rounded-full text-sm sm:text-base font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto sm:min-w-[180px] md:min-w-[200px]"
+                            >
                                 <span>Book a Free Consultation</span>
                                 <FiArrowUpRight size={26} />
                             </button>

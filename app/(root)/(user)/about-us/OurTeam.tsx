@@ -112,7 +112,7 @@ const OurTeam = () => {
           {/* Cards Container */}
           <div className="overflow-hidden w-full">
             <motion.div
-              className="flex gap-6 sm:gap-8"
+              className="flex gap-6 sm:gap-8 justify-center"
               animate={{
                 x: `calc(-${currentIndex} * (25% + 1.5rem))`,
               }}
@@ -161,7 +161,7 @@ const OurTeam = () => {
           </div>
 
           {/* Navigation Arrows */}
-          <div className="flex justify-center items-center gap-4 mt-8 sm:mt-10">
+          {teamMembers?.length > 4 && <div className="flex justify-center items-center gap-4 mt-8 sm:mt-10">
             <button
               onClick={prevSlide}
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors duration-200 shadow-lg"
@@ -176,7 +176,7 @@ const OurTeam = () => {
             >
               <IoChevronForward className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-          </div>
+          </div>}
         </div>
       </div>
 
@@ -202,7 +202,7 @@ const OurTeam = () => {
               className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none"
             >
               <div className="bg-white rounded-3xl w-full max-w-lg md:max-w-2xl max-h-[90vh] overflow-y-auto relative pointer-events-auto shadow-2xl overflow-hidden flex flex-col md:flex-row">
-                
+
                 {/* Close Button */}
                 <button
                   onClick={() => setSelectedMember(null)}
@@ -223,17 +223,17 @@ const OurTeam = () => {
 
                 {/* Right Side (Content) - Mobile: Bottom */}
                 <div className="w-full md:w-3/5 p-6 sm:p-8 md:p-10 flex flex-col justify-center">
-                    <div>
-                        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                        {selectedMember.name}
-                        </h3>
-                        <p className="text-sm sm:text-base font-medium text-gray-500 uppercase tracking-wide mb-6">
-                        {selectedMember.title}
-                        </p>
-                        <div className="prose prose-sm sm:prose-base text-gray-600 leading-relaxed">
-                        <p>{selectedMember.bio}</p>
-                        </div>
+                  <div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                      {selectedMember.name}
+                    </h3>
+                    <p className="text-sm sm:text-base font-medium text-gray-500 uppercase tracking-wide mb-6">
+                      {selectedMember.title}
+                    </p>
+                    <div className="prose prose-sm sm:prose-base text-gray-600 leading-relaxed">
+                      <p>{selectedMember.bio}</p>
                     </div>
+                  </div>
                 </div>
               </div>
             </motion.div>

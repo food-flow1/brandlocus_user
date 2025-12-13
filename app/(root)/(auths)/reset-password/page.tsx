@@ -22,17 +22,17 @@ interface ResetPasswordFormValues {
 const ResetPasswordPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const email = searchParams.get('email');
+    const otp = searchParams.get('otp');
 
     // Modal state
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-    // Redirect if no email
+    // Redirect if no otp
     useEffect(() => {
-        if (!email) {
+        if (!otp) {
             router.push(ROUTES.FORGET_PASSWORD);
         }
-    }, [email, router]);
+    }, [otp, router]);
 
     const initialValues: ResetPasswordFormValues = {
         newPassword: '',
@@ -49,13 +49,17 @@ const ResetPasswordPage = () => {
     });
 
     const handleSubmit = async (values: ResetPasswordFormValues, { setSubmitting }: any) => {
-        if (!email) return;
+        if (!otp) {
+            toast.error('Missing OTP token');
+            setSubmitting(false);
+            return;
+        }
 
         try {
-            await authService.confirmResetPassword({
-                email,
-                newPassword: values.newPassword,
-                confirmNewPassword: values.confirmNewPassword,
+            await authService.resetPassword({
+                otp,
+                password: values.newPassword,
+                confirmPassword: values.confirmNewPassword,
             });
 
             setShowSuccessModal(true);

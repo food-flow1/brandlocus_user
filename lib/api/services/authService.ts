@@ -160,7 +160,7 @@ export const authService = {
   /**
    * Verify token
    */
-  verifyToken: async (payload: { email: string; token: string }): Promise<{ message: string }> => {
+  verifyToken: async (payload: { email: string; token: string; purpose: string }): Promise<{ message: string }> => {
     return await api.post("/token/verify", payload);
   },
 
@@ -168,7 +168,7 @@ export const authService = {
    * Reset password
    */
   resetPassword: async (payload: ResetPasswordPayload): Promise<{ message: string }> => {
-    return await api.post("/auth/reset-password", payload);
+    return await api.post("/auth/password-reset", payload);
   },
 
   /**

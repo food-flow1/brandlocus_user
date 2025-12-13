@@ -510,7 +510,7 @@ const ConversationPage = () => {
                     <ChatSidebar currentConversationId={conversationId} isOpen={isSidebarOpen} onToggle={toggleSidebar} />
 
                     {/* Main Content Area - Account for fixed sidebar on desktop only */}
-                    <div className="flex-1 flex flex-col min-h-0 relative lg:ml-80">
+                    <div className="flex-1 flex flex-col min-h-0 relative lg:ml-80 pt-6">
                         {/* Background Decorative Elements - Fixed, not scrollable */}
                         <DecorativeBackground
                             rightText="A"
@@ -523,7 +523,7 @@ const ConversationPage = () => {
                         {/* Messages Container - Scrollable */}
                         <div
                             ref={messagesContainerRef}
-                            className="flex-1 overflow-y-auto pt-24 pb-12 sm:pt-20 sm:pb-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 relative z-10"
+                            className="flex-1 overflow-y-auto pt-28 pb-12 sm:pt-28 sm:pb-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 relative z-10"
                         >
 
                             {/* Chat Messages */}

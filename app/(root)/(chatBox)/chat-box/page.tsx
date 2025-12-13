@@ -213,7 +213,7 @@ const ChatBox = () => {
                 <ChatSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
 
                 {/* Main Content Area - Account for fixed sidebar on desktop only */}
-                <div className="flex-1 lg:ml-80 relative overflow-hidden flex items-center justify-center min-h-screen py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-6 md:px-8">
+                <div className="flex-1 lg:ml-80 relative overflow-hidden flex items-center justify-center min-h-screen pt-20 pb-8 sm:pb-12 md:pb-16 lg:pb-20 px-4 sm:px-6 md:px-8">
                     {/* Background Decorative Elements */}
                     <DecorativeBackground rightText="A" leftText="Mr." />
 
