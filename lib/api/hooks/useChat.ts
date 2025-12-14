@@ -3,7 +3,7 @@
  * React Query hooks for chat operations
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { chatService } from "../services/chatService";
 import { ChatConversation, StartChatPayload, StartChatResponse } from "../types";
 import { tokenStorage } from "../auth";
@@ -18,48 +18,52 @@ export const chatKeys = {
 };
 
 /**
- * Hook to get all chat conversations
+ * Hook to get all chat conversations with infinite scroll pagination
  */
 export const useChats = () => {
   const isAuthenticated = tokenStorage.isAuthenticated();
-  
-  return useQuery({
+
+  return useInfiniteQuery({
     queryKey: chatKeys.list(),
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 0 }) => {
       try {
-        const data = await chatService.getChats();
-        // Ensure we always return an array
-        if (!data) return [];
-        if (!Array.isArray(data)) {
-          console.warn('API returned non-array data:', data);
-          return [];
-        }
+        const data = await chatService.getChats(pageParam, 10);
         return data;
       } catch (error) {
-        // Log error but don't throw to prevent retries
         console.error('Error fetching chats:', error);
-        // Return empty array on error to prevent UI breaking
-        return [];
+        // Return empty response on error
+        return {
+          content: [],
+          page: 0,
+          size: 10,
+          totalElements: 0,
+          totalPages: 0,
+          last: true,
+        };
       }
     },
-    enabled: isAuthenticated, // Only fetch if authenticated
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-    refetchOnWindowFocus: false, // Don't refetch on window focus
-    refetchOnMount: false, // Don't refetch on mount if data exists
-    refetchOnReconnect: false, // Don't refetch on reconnect
-    retry: false, // Don't retry on error to prevent multiple calls
-    // Prevent multiple simultaneous requests
+    getNextPageParam: (lastPage) => {
+      // Return next page number if there are more pages
+      if (!lastPage.last && lastPage.page < lastPage.totalPages - 1) {
+        return lastPage.page + 1;
+      }
+      return undefined; // No more pages
+    },
+    initialPageParam: 0,
+    enabled: isAuthenticated,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: false,
     networkMode: 'online',
-    // Only refetch if data is stale
     refetchInterval: false,
-    // Use cached data if available, even if stale
-    placeholderData: (previousData) => previousData,
   });
 };
 
 /**
- * Hook to start a new chat conversation
+ * Hook to start a new chat conversation (no sessionId)
  */
 export const useStartChat = () => {
   const queryClient = useQueryClient();
@@ -76,6 +80,29 @@ export const useStartChat = () => {
     },
     onError: (error) => {
       console.error("Error starting chat:", error);
+    },
+  });
+};
+
+/**
+ * Hook to send a message to an existing conversation (with sessionId)
+ */
+export const useSendMessage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: StartChatPayload) => chatService.sendMessage(payload),
+    onSuccess: (data, variables) => {
+      // Only invalidate the specific conversation, not the entire list
+      if (variables.sessionId) {
+        console.log('✅ Message sent, invalidating conversation:', variables.sessionId);
+        queryClient.invalidateQueries({ queryKey: chatKeys.detail(String(variables.sessionId)) });
+      }
+      // Also invalidate the list to update "last message" preview
+      queryClient.invalidateQueries({ queryKey: chatKeys.list() });
+    },
+    onError: (error) => {
+      console.error("Error sending message:", error);
     },
   });
 };

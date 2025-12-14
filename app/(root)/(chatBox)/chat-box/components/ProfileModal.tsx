@@ -202,9 +202,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         firstName: profile?.firstName || profile?.first_name || '',
         lastName: profile?.lastName || profile?.last_name || '',
         email: profile?.email || '',
+        // API returns ISO code (e.g., "NG" for Nigeria)
         country: profile?.country || '',
+        // API returns ISO code (e.g., "AB" for Abia)
         state: profile?.state || '',
         businessName: profile?.businessName || '',
+        // API returns lowercase id (e.g., "finance", "tech")
         industryName: profile?.industryName || '',
         businessBrief: profile?.businessBrief || '',
     };

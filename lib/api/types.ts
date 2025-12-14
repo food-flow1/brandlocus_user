@@ -192,6 +192,7 @@ export interface StartChatResponse {
   data?: ChatMessage[]; // API returns messages in data array
   createdAt?: string | Date;
   updatedAt?: string | Date;
+  milestone?: boolean;
 }
 
 /**
