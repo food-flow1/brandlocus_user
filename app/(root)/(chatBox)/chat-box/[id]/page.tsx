@@ -2,16 +2,19 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSend, FiLoader, FiCopy, FiCheck, FiEdit2, FiX, FiSave, FiChevronDown, FiRefreshCw } from 'react-icons/fi';
+import { FiSend, FiLoader, FiCopy, FiCheck, FiX, FiSave, FiChevronDown, FiRefreshCw } from 'react-icons/fi';
 import { HiSparkles } from 'react-icons/hi2';
 import { useParams, useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import ChatSidebar from '../components/ChatSidebar';
 import { ConversationPageSkeleton } from '../components/SkeletonLoader';
-import { tokenStorage, useChatById, useStartChat, useEditMessage } from '@/lib/api';
+import { tokenStorage, useChatById, useSendMessage, useEditMessage } from '@/lib/api';
 import { ROUTES } from '@/constants/routes';
 import toast, { Toaster } from 'react-hot-toast';
 import DecorativeBackground from '@/components/common/DecorativeBackground';
+import ChatInput from '../components/ChatInput';
+import ConsultationModal from '@/components/modals/ConsultationModal';
+import BookingCalendarModal from '@/components/modals/BookingCalendarModal';
 
 
 // Helper function to format timestamp
@@ -62,7 +65,7 @@ const ConversationPage = () => {
     const router = useRouter();
     const conversationId = params?.id as string;
 
-    const [message, setMessage] = useState('');
+
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -83,10 +86,25 @@ const ConversationPage = () => {
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const scrollPositionRef = useRef<number>(0);
 
+    // Modal states
+    const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+
+    // Initial check for consultation modal - show after a delay or condition
+    // For now, we'll show it after a short delay for demonstration
+
+
+    const handleOpenBooking = () => {
+        setIsConsultationModalOpen(false);
+        setIsBookingModalOpen(true);
+    };
+
     // Track the message count and IDs before sending to detect truly new messages
     const messageCountBeforeSendRef = useRef<number>(0);
     const messageIdsBeforeSendRef = useRef<Set<string | number>>(new Set());
     const lastStreamedMessageIdRef = useRef<string | number | null>(null);
+    const safetyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const detectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Toggle sidebar for mobile
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -95,6 +113,11 @@ const ConversationPage = () => {
     const scrollToBottom = useCallback(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, []);
+
+    // Fetch messages from API
+    const { data: apiData, isLoading: isInitialLoading, error: conversationError, refetch: refetchMessages } = useChatById(conversationId, currentPage, 10);
+    const sendMessage = useSendMessage(); // For sending messages to existing conversations
+    const editMessage = useEditMessage();
 
     // Track scroll position to show/hide scroll to bottom button
     useEffect(() => {
@@ -108,13 +131,11 @@ const ConversationPage = () => {
         };
 
         container.addEventListener('scroll', handleScroll);
+        // Initial check
+        handleScroll();
+        
         return () => container.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    // Fetch messages from API
-    const { data: apiData, isLoading: isInitialLoading, error: conversationError, refetch: refetchMessages } = useChatById(conversationId, currentPage, 10);
-    const startChat = useStartChat();
-    const editMessage = useEditMessage();
+    }, [isCheckingAuth, isInitialLoading]);
 
     // Update allMessages when new data arrives
     useEffect(() => {
@@ -129,6 +150,17 @@ const ConversationPage = () => {
                     const newMessages = (apiData.messages || []).filter(m => !existingIds.has(m.messageId || m.id));
                     return [...newMessages, ...prev];
                 });
+
+                // Restore scroll position after loading older messages
+                // Wait for DOM to update
+                setTimeout(() => {
+                    if (messagesContainerRef.current && scrollPositionRef.current > 0) {
+                        const newScrollHeight = messagesContainerRef.current.scrollHeight;
+                        const scrollDiff = newScrollHeight - scrollPositionRef.current;
+                        messagesContainerRef.current.scrollTop = scrollDiff;
+                        scrollPositionRef.current = 0; // Reset
+                    }
+                }, 100);
             }
             setPagination(apiData.pagination);
             setIsLoadingMore(false);
@@ -219,10 +251,15 @@ const ConversationPage = () => {
         // - No messages
         // - Already streaming
         // - No pending user message (user hasn't sent anything)
-        if (!messages || messages.length === 0 || isStreaming || !pendingUserMessage) return;
+        if (!messages || messages.length === 0 || isStreaming || !pendingUserMessage) {
+            return;
+        }
 
         // Only proceed if we have more messages than before sending
-        if (messages.length <= messageCountBeforeSendRef.current) return;
+        if (messages.length <= messageCountBeforeSendRef.current) {
+            console.log('⏸️ No new messages yet. Current:', messages.length, 'Before:', messageCountBeforeSendRef.current);
+            return;
+        }
 
         // Find the latest AI message that is truly NEW (not in the set of messages before sending)
         const latestAIMessage = [...messages]
@@ -237,6 +274,22 @@ const ConversationPage = () => {
 
         // Only stream if we found a truly new AI message
         if (latestAIMessage && latestAIMessage.id) {
+            console.log('🤖 New AI message detected:', latestAIMessage.id);
+
+            // Clear safety timeout since we got the AI response
+            if (safetyTimeoutRef.current) {
+                clearTimeout(safetyTimeoutRef.current);
+                safetyTimeoutRef.current = null;
+                console.log('✅ Cleared safety timeout');
+            }
+
+            // Clear detection timeout since we detected the new message
+            if (detectionTimeoutRef.current) {
+                clearTimeout(detectionTimeoutRef.current);
+                detectionTimeoutRef.current = null;
+                console.log('✅ Cleared detection timeout');
+            }
+
             // Mark this message as streamed
             lastStreamedMessageIdRef.current = latestAIMessage.id;
 
@@ -247,6 +300,7 @@ const ConversationPage = () => {
             setPendingUserMessage(null);
             setIsLoading(false);
             isSubmittingRef.current = false;
+            console.log('✅ Reset submit state (AI message detected)');
 
             // Stream the AI response
             streamText(latestAIMessage.content, () => {
@@ -258,8 +312,11 @@ const ConversationPage = () => {
                     setIsLoading(false);
                     // Ensure button is not disabled after streaming
                     isSubmittingRef.current = false;
+                    console.log('✅ Reset submit state (streaming complete)');
                 }, 100); // Small delay to ensure smooth transition
             });
+        } else {
+            console.log('⏸️ No new AI message found');
         }
     }, [messages, isStreaming, pendingUserMessage, streamText]);
 
@@ -391,15 +448,21 @@ const ConversationPage = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const handleSubmit = async (messageContent: string) => {
         // Prevent double submission
-        if (isSubmittingRef.current || !message.trim() || isLoading || startChat.isPending || !conversationId) {
+        if (isSubmittingRef.current || !messageContent.trim() || isLoading || sendMessage.isPending || !conversationId) {
+            console.log('🚫 Submit blocked:', {
+                isSubmitting: isSubmittingRef.current,
+                hasMessage: !!messageContent.trim(),
+                isLoading,
+                isPending: sendMessage.isPending,
+                hasConversationId: !!conversationId
+            });
             return;
         }
 
-        const userMessage = message.trim();
+        const userMessage = messageContent.trim();
+        console.log('📤 Sending message to conversation:', conversationId);
         setIsLoading(true);
         isSubmittingRef.current = true;
 
@@ -409,26 +472,80 @@ const ConversationPage = () => {
 
         // Show user message immediately
         setPendingUserMessage(userMessage);
-        setMessage(''); // Clear input immediately
+
+        // Safety timeout: Reset submitting state after 30 seconds if something goes wrong
+        safetyTimeoutRef.current = setTimeout(() => {
+            console.warn('⚠️ Safety timeout triggered - resetting submit state');
+            setIsLoading(false);
+            isSubmittingRef.current = false;
+            setPendingUserMessage(null);
+            safetyTimeoutRef.current = null;
+
+            toast.error('Request timed out. Please try sending your message again.', {
+                duration: 5000,
+                style: {
+                    background: '#1a1a1a',
+                    color: '#fff',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                },
+            });
+        }, 30000);
 
         try {
-            // Call API to continue conversation
-            const response = await startChat.mutateAsync({
+            // Send message to existing conversation using the dedicated endpoint
+            const response = await sendMessage.mutateAsync({
                 content: userMessage,
                 title: conversationTitle, // Use generated title
                 sessionId: Number(conversationId), // Include session ID to continue conversation
             });
 
+            console.log('✅ Message sent successfully:', response);
+
+            // Check if milestone was reached and trigger modal
+            if (response.milestone) {
+                console.log('🚀 Milestone reached! Opening consultation modal');
+                setIsConsultationModalOpen(true);
+            }
+
+            // Clear the safety timeout since request succeeded
+            if (safetyTimeoutRef.current) {
+                clearTimeout(safetyTimeoutRef.current);
+                safetyTimeoutRef.current = null;
+            }
+
             // Reset to first page and refetch to get latest messages
             setCurrentPage(0);
-            // The query will automatically refetch due to invalidation in useStartChat
+            // The query will automatically refetch due to invalidation in useSendMessage
             // The useEffect above will detect the new message ONLY when it actually arrives
             // and the message count increases
+
+            // Safety: Reset after 10 seconds if the effect doesn't trigger
+            detectionTimeoutRef.current = setTimeout(() => {
+                if (isSubmittingRef.current) {
+                    console.warn('⚠️ Effect did not trigger - manually resetting submit state');
+                    setIsLoading(false);
+                    isSubmittingRef.current = false;
+                    detectionTimeoutRef.current = null;
+                }
+            }, 10000);
+
         } catch (error: any) {
-            console.error('Error sending message:', error);
+            console.error('❌ Error sending message:', error);
+
+            // Clear the safety timeout
+            if (safetyTimeoutRef.current) {
+                clearTimeout(safetyTimeoutRef.current);
+                safetyTimeoutRef.current = null;
+            }
 
             // Clear pending message on error
             setPendingUserMessage(null);
+            
+            // Clear detection timeout on error
+            if (detectionTimeoutRef.current) {
+                clearTimeout(detectionTimeoutRef.current);
+                detectionTimeoutRef.current = null;
+            }
 
             // Show error toast
             let errorMessage = 'Failed to send message. Please try again.';
@@ -540,6 +657,30 @@ const ConversationPage = () => {
 
                             {/* Chat Messages */}
                             <div className="space-y-4 sm:space-y-6 relative z-10 max-w-6xl mx-auto w-full">
+                                {/* Load More Button at top */}
+                                {!isLoadingMore && pagination && !pagination.last && messages.length > 0 && (
+                                    <div className="flex justify-center py-4">
+                                        <motion.button
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            onClick={() => {
+                                                if (!isLoadingMore && pagination && !pagination.last) {
+                                                    setIsLoadingMore(true);
+                                                    // Save current scroll position
+                                                    if (messagesContainerRef.current) {
+                                                        scrollPositionRef.current = messagesContainerRef.current.scrollHeight;
+                                                    }
+                                                    setCurrentPage(prev => prev + 1);
+                                                }
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200"
+                                        >
+                                            <FiRefreshCw className="w-4 h-4" />
+                                            Load Older Messages
+                                        </motion.button>
+                                    </div>
+                                )}
+
                                 {/* Loading more indicator at top */}
                                 {isLoadingMore && (
                                     <div className="flex justify-center py-4">
@@ -553,7 +694,7 @@ const ConversationPage = () => {
                                         </div>
                                     </div>
                                 )}
-                                
+
                                 {messages && messages.length > 0 ? (
                                     // Sort messages by timestamp (oldest first) since API returns newest first
                                     [...messages].reverse().map((msg, index) => (
@@ -806,7 +947,7 @@ const ConversationPage = () => {
 
                                 {/* Loading indicator for AI response (only when waiting for API, not streaming, and no streaming message) */}
                                 <AnimatePresence>
-                                    {(isLoading || startChat.isPending) && !isStreaming && !streamingMessage && pendingUserMessage && (
+                                    {(isLoading || sendMessage.isPending) && !isStreaming && !streamingMessage && pendingUserMessage && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 15 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -849,50 +990,37 @@ const ConversationPage = () => {
                                     exit={{ opacity: 0, y: 20, scale: 0.8 }}
                                     transition={{ duration: 0.2 }}
                                     onClick={scrollToBottom}
-                                    className="fixed bottom-24 right-6 z-30 p-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 transition-all duration-300 shadow-lg group"
+                                    className="absolute bottom-28 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a]/80 backdrop-blur-xl border border-white/20 hover:bg-[#1a1a1a] hover:border-white/40 transition-all duration-300 shadow-lg group hover:scale-105"
                                     aria-label="Scroll to bottom"
                                 >
-                                    <FiChevronDown className="w-5 h-5 text-white group-hover:translate-y-0.5 transition-transform" />
+                                    <span className="text-sm font-medium text-white/90">Scroll to bottom</span>
+                                    <FiChevronDown className="w-4 h-4 text-white group-hover:translate-y-0.5 transition-transform" />
                                 </motion.button>
                             )}
                         </AnimatePresence>
 
-                        {/* Input Field - Fixed at bottom */}
-                        <div className="sticky bottom-0 z-20 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/98 to-transparent pt-4 pb-3 sm:pb-4 px-3 sm:px-4 md:px-6 lg:px-8">
-                            <div className="max-w-4xl mx-auto">
-                                <form onSubmit={handleSubmit} className="relative group">
-                                    {/* Glowing border effect */}
-                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-white/10 via-white/5 to-white/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                                    <div className="relative flex items-center">
-                                        <input
-                                            type="text"
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            placeholder="Ask me any business question..."
-                                            className="w-full rounded-xl sm:rounded-2xl border border-white/20 bg-black/60 backdrop-blur-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 px-4 sm:px-5 py-3 sm:py-3.5 md:py-4 pr-12 sm:pr-14 text-sm sm:text-base transition-all duration-300"
-                                        />
-                                        <button
-                                            type="submit"
-                                            disabled={!message.trim() || (isLoading && !!pendingUserMessage && !isStreaming) || (startChat.isPending && !!pendingUserMessage && !isStreaming)}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/10 group/btn"
-                                        >
-                                            {((isLoading && !!pendingUserMessage && !isStreaming) || (startChat.isPending && !!pendingUserMessage && !isStreaming)) ? (
-                                                <FiLoader className="w-5 h-5 text-white animate-spin" />
-                                            ) : (
-                                                <FiSend className="w-5 h-5 text-white group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-200" />
-                                            )}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                            {/* Chat Input Component */}
+                            <ChatInput
+                                onSubmit={handleSubmit}
+                                isLoading={isLoading || sendMessage.isPending}
+                                isPending={(isLoading || sendMessage.isPending) && !!pendingUserMessage}
+                                disabled={isLoading || sendMessage.isPending}
+                            />
                     </div>
                 </div>
             )}
+            {/* Modals */}
+            <ConsultationModal 
+                isOpen={isConsultationModalOpen} 
+                onClose={() => setIsConsultationModalOpen(false)}
+                onBook={handleOpenBooking}
+            />
+            <BookingCalendarModal
+                isOpen={isBookingModalOpen}
+                onClose={() => setIsBookingModalOpen(false)}
+            />
         </>
     );
 };
 
 export default ConversationPage;
-

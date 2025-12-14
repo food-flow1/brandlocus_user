@@ -8,57 +8,122 @@ import { ChatConversation, StartChatPayload, StartChatResponse, ChatsResponse, M
 
 export const chatService = {
   /**
-   * Get all chat conversations
+   * Get all chat conversations with pagination
    */
-  getChats: async (): Promise<ChatConversation[]> => {
-    const response = await api.get<ChatsResponse>("/chats/");
-    // Extract content array from response
-    if (!response) return [];
+  getChats: async (page: number = 0, size: number = 10): Promise<ChatsResponse> => {
+    const response = await api.get<ChatsResponse | ChatConversation[]>(`/chats/?page=${page}&size=${size}`);
+    // Return the full paginated response
+    if (!response) {
+      return {
+        content: [],
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 0,
+        last: true,
+      };
+    }
     if (response && typeof response === 'object' && 'content' in response) {
-      const content = response.content;
-      if (Array.isArray(content)) {
-        return content;
-      }
+      return response;
     }
     // Fallback: if response is directly an array (backward compatibility)
     if (Array.isArray(response)) {
-      return response;
+      return {
+        content: response,
+        page: 0,
+        size: response.length,
+        totalElements: response.length,
+        totalPages: 1,
+        last: true,
+      };
     }
     console.warn('Unexpected API response format:', response);
-    return [];
+    return {
+      content: [],
+      page: 0,
+      size: 10,
+      totalElements: 0,
+      totalPages: 0,
+      last: true,
+    };
   },
 
   /**
    * Start a new chat conversation
    */
   startChat: async (payload: StartChatPayload): Promise<StartChatResponse> => {
-    // api.post extracts response.data.data, so response is the array directly
+    // api.post extracts response.data.data
     const response = await api.post<any>("/chats/start", payload);
-    
-    // Handle response where data is an array of messages (after api.post extraction)
+
+    console.log('🔍 Start Chat API Response:', JSON.stringify(response, null, 2));
+
+    // Handle response with messages array (current API format)
+    // Response structure: { messages: [...], milestone: false }
+    if (response?.messages && Array.isArray(response.messages) && response.messages.length > 0) {
+      const firstMessage = response.messages[0];
+      console.log('✅ First message:', JSON.stringify(firstMessage, null, 2));
+      console.log('✅ Session ID from message:', firstMessage.sessionId);
+
+      const result = {
+        id: String(firstMessage.sessionId),
+        sessionId: firstMessage.sessionId,
+        messages: response.messages,
+        data: response.messages,
+      };
+
+      console.log('✅ Returning result:', JSON.stringify(result, null, 2));
+      return result;
+    }
+
+    // Handle paginated response with content array (alternative format)
+    if (response?.content && Array.isArray(response.content) && response.content.length > 0) {
+      const newConversation = response.content[0];
+      console.log('✅ New conversation:', JSON.stringify(newConversation, null, 2));
+      console.log('✅ Session ID:', newConversation.id);
+
+      return {
+        id: String(newConversation.id),
+        sessionId: newConversation.id,
+        title: newConversation.title,
+        createdAt: newConversation.createdAt,
+        messages: [],
+        data: response.content,
+      };
+    }
+
+    // Fallback: Handle response where data is an array of messages (old format)
     if (Array.isArray(response) && response.length > 0) {
       const firstMessage = response[0];
+      console.log('✅ First message (legacy format):', firstMessage);
+      console.log('✅ Session ID from first message:', firstMessage.sessionId);
       return {
         sessionId: firstMessage.sessionId,
-        id: String(firstMessage.sessionId), // Use sessionId as id for navigation
+        id: String(firstMessage.sessionId),
         messages: response,
         data: response,
       };
     }
-    
+
     // Fallback: if response has id directly
     if (response?.id) {
-      return response;
+      console.log('✅ Using response.id:', response.id);
+      return {
+        ...response,
+        id: String(response.id),
+        sessionId: response.id,
+      };
     }
-    
+
     // If response has sessionId directly
     if (response?.sessionId) {
+      console.log('✅ Using response.sessionId:', response.sessionId);
       return {
         ...response,
         id: String(response.sessionId),
       };
     }
-    
+
+    console.warn('⚠️ No sessionId found in response, returning raw response:', response);
     return response;
   },
 
@@ -112,6 +177,50 @@ export const chatService = {
     }
     
     return { messages, pagination };
+  },
+
+  /**
+   * Send a message to an existing conversation
+   * This is different from startChat - it's for continuing conversations
+   */
+  sendMessage: async (payload: StartChatPayload): Promise<StartChatResponse> => {
+    console.log('📨 Sending message to existing conversation:', payload.sessionId);
+
+    // Use the same /chats/start endpoint but with sessionId
+    // The API uses this endpoint for both starting and continuing conversations
+    const response = await api.post<any>("/chats/start", payload);
+
+    console.log('🔍 Send Message API Response:', JSON.stringify(response, null, 2));
+
+    // Handle response with messages array (current API format)
+    if (response?.messages && Array.isArray(response.messages) && response.messages.length > 0) {
+      const firstMessage = response.messages[0];
+      console.log('✅ Message sent, session ID:', firstMessage.sessionId);
+
+      const result = {
+        id: String(firstMessage.sessionId),
+        sessionId: firstMessage.sessionId,
+        messages: response.messages,
+        data: response.messages,
+        milestone: response.milestone,
+      };
+
+      return result;
+    }
+
+    // Fallback handling (same as startChat)
+    if (Array.isArray(response) && response.length > 0) {
+      const firstMessage = response[0];
+      return {
+        sessionId: firstMessage.sessionId,
+        id: String(firstMessage.sessionId),
+        messages: response,
+        data: response,
+      };
+    }
+
+    console.warn('⚠️ Unexpected response format:', response);
+    return response;
   },
 
   /**

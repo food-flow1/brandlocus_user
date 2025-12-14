@@ -41,7 +41,14 @@ interface ChatSidebarProps {
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen = false, onToggle }) => {
-    const { data: conversations, isLoading, error } = useChats();
+    const {
+        data,
+        isLoading,
+        error,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useChats();
     const { data: profile, isLoading: isLoadingProfile } = useProfile();
     const logout = useLogout();
     const router = useRouter();
@@ -49,6 +56,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+    // Flatten all pages into a single conversations array
+    const conversations = useMemo(() => {
+        if (!data?.pages) return [];
+        return data.pages.flatMap(page => page.content || []);
+    }, [data]);
 
     // Close sidebar when clicking on a conversation link on mobile
     const handleConversationClick = () => {
@@ -283,11 +296,10 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
                                                             }`}
                                                         title={item.title}
                                                     >
-                                                        <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                                                            currentConversationId === String(item.id)
-                                                                ? 'bg-white/20'
-                                                                : 'bg-white/5 group-hover:bg-white/10'
-                                                        }`}>
+                                                        <div className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${currentConversationId === String(item.id)
+                                                            ? 'bg-white/20'
+                                                            : 'bg-white/5 group-hover:bg-white/10'
+                                                            }`}>
                                                             <FiMessageSquare className="w-4 h-4" />
                                                         </div>
                                                         <span className="flex-1 truncate text-sm">{item.title}</span>
@@ -298,6 +310,29 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
                                     </motion.div>
                                 ))}
                             </AnimatePresence>
+
+                            {/* Load More Button */}
+                            {hasNextPage && (
+                                <motion.button
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    onClick={() => fetchNextPage()}
+                                    disabled={isFetchingNextPage}
+                                    className="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/70 hover:text-white text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isFetchingNextPage ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Loading...
+                                        </span>
+                                    ) : (
+                                        'Load More'
+                                    )}
+                                </motion.button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -319,9 +354,17 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
                                 className="w-full cursor-pointer flex items-center gap-3 hover:bg-white/5 rounded-xl p-2.5 transition-all duration-200 group border border-transparent hover:border-white/10"
                             >
                                 {/* Avatar */}
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center text-white font-semibold text-sm shrink-0 border border-white/10 group-hover:border-white/20 transition-colors">
-                                    {profile.firstName?.[0]?.toUpperCase() || profile.first_name?.[0]?.toUpperCase() || profile.lastName?.[0]?.toUpperCase() || profile.last_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || 'U'}
-                                </div>
+                                {profile.profileImageUrl ? (
+                                    <img
+                                        src={profile.profileImageUrl}
+                                        alt="Profile"
+                                        className="w-10 h-10 rounded-full object-cover shrink-0 border border-white/10 group-hover:border-white/20 transition-colors"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center text-white font-semibold text-sm shrink-0 border border-white/10 group-hover:border-white/20 transition-colors">
+                                        {profile.firstName?.[0]?.toUpperCase() || profile.first_name?.[0]?.toUpperCase() || profile.lastName?.[0]?.toUpperCase() || profile.last_name?.[0]?.toUpperCase() || profile.email?.[0]?.toUpperCase() || 'U'}
+                                    </div>
+                                )}
                                 {/* Profile Info */}
                                 <div className="flex-1 min-w-0 text-left">
                                     <p className="text-sm font-medium text-white truncate group-hover:text-white/90 transition-colors">
@@ -341,7 +384,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
                             <button
                                 onClick={() => setIsLogoutModalOpen(true)}
                                 disabled={logout.isPending}
-                                className="w-full flex items-center cursor-pointer justify-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-red-500/20 hover:border-red-500/30 group"
+                                className="w-full flex items-center cursor-pointer justify-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 hover:border-white/20 group"
                             >
                                 <FiLogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
                                 <span className="text-sm font-medium">Sign Out</span>
@@ -369,4 +412,3 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ currentConversationId, isOpen
 };
 
 export default ChatSidebar;
-
