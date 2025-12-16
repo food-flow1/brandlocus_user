@@ -41,3 +41,35 @@ export const blogPosts = [
         title: "Harnessing Solar Energy Amid Nigeria's Power Grid Challenges",
     },
 ];
+
+export const serviceNeededEnum = {
+    BRAND_DEVELOPMENT: "BRAND_DEVELOPMENT",
+    BUSINESS_QUEST: "BUSINESS_QUEST",
+    BUSINESS_DEVELOPMENT: "BUSINESS_DEVELOPMENT",
+    CAPACITY_BUILDING: "CAPACITY_BUILDING",
+    MARKETING_CONSULTING: "MARKETING_CONSULTING",
+    TRADE_AND_INVESTMENT_FACILITATION: "TRADE_AND_INVESTMENT_FACILITATION",
+    OTHERS: "OTHERS",
+} as const;
+
+// Service options for the select dropdown
+export const serviceOptions = [
+  { id: serviceNeededEnum.BRAND_DEVELOPMENT, label: "Brand Development" },
+  { id: serviceNeededEnum.BUSINESS_QUEST, label: "Business Quest" },
+  { id: serviceNeededEnum.BUSINESS_DEVELOPMENT, label: "Business Development" },
+  { id: serviceNeededEnum.CAPACITY_BUILDING, label: "Capacity Building" },
+  { id: serviceNeededEnum.MARKETING_CONSULTING, label: "Marketing Consulting" },
+  { id: serviceNeededEnum.TRADE_AND_INVESTMENT_FACILITATION, label: "Trade & Investment" },
+  { id: serviceNeededEnum.OTHERS, label: "Others" },
+];
+
+import { ServiceNeededType } from "@/lib/api/types";
+
+export const getServiceFromPath = (pathname: string): ServiceNeededType => {
+  if (pathname.includes('/services/business-development')) return serviceNeededEnum.BUSINESS_DEVELOPMENT;
+  if (pathname.includes('/services/brand-management')) return serviceNeededEnum.BRAND_DEVELOPMENT;
+  if (pathname.includes('/services/capacity-building')) return serviceNeededEnum.CAPACITY_BUILDING;
+  if (pathname.includes('/services/marketing-consulting')) return serviceNeededEnum.MARKETING_CONSULTING;
+  if (pathname.includes('/services/trade-investment')) return serviceNeededEnum.TRADE_AND_INVESTMENT_FACILITATION;
+  return serviceNeededEnum.OTHERS;
+};

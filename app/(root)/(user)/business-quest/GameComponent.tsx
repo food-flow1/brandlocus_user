@@ -54,6 +54,13 @@ const GameComponent = () => {
         setTimeout(() => setIsPaused(false), 10000);
     };
 
+    const scrollToJoin = () => {
+        const joinSection = document.getElementById('join-playtest');
+        if (joinSection) {
+            joinSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <section 
             className="w-full bg-white py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden"
@@ -159,7 +166,10 @@ const GameComponent = () => {
 
                         {/* CTA Button - Centered */}
                         <div className="flex justify-center">
-                            <button className="flex justify-center items-center gap-4 px-6 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-colors font-medium text-base">
+                            <button 
+                                onClick={scrollToJoin}
+                                className="flex justify-center items-center gap-4 px-6 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-colors font-medium text-base"
+                            >
                                 <span>Join the Playtest List</span>
                                 <div className="bg-white rounded flex items-center justify-center">
                                     <MdArrowOutward size={20} className='text-black' />
@@ -268,7 +278,10 @@ const GameComponent = () => {
                                 </div>
 
                                 {/* CTA Button */}
-                                <button className="flex w-full justify-center items-center gap-4 px-6 py-3 sm:px-8 bg-black text-white rounded-full hover:bg-gray-900 transition-colors font-medium text-base sm:text-lg">
+                                <button 
+                                    onClick={scrollToJoin}
+                                    className="flex w-full justify-center items-center gap-4 px-6 py-3 sm:px-8 bg-black text-white rounded-full hover:bg-gray-900 transition-colors font-medium text-base sm:text-lg"
+                                >
                                     <span>Join the Playtest List</span>
                                     <div className="bg-white rounded flex items-center justify-center">
                                         <MdArrowOutward size={20} className='text-black' />

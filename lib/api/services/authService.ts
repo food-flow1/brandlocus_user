@@ -183,10 +183,10 @@ export const authService = {
    */
   changePassword: async (payload: ChangePasswordPayload): Promise<{ message: string }> => {
     // Map to the expected API format for /password/change endpoint
-    const apiPayload: { oldPassword: string; password: string; newPassword: string } = {
+    const apiPayload = {
       oldPassword: payload.oldPassword || payload.currentPassword || '',
-      password: payload.password || payload.newPassword || '',
-      newPassword: payload.newPassword || payload.password || '',
+      newPassword: payload.newPassword || '',
+      confirmNewPassword: payload.confirmNewPassword || payload.newPassword || '',
     };
     return await api.post("/password/change", apiPayload);
   },

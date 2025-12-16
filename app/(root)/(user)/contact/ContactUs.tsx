@@ -5,14 +5,17 @@ import { motion } from "framer-motion";
 import { FiMail, FiPhone, FiArrowRight } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { useSubmitContactForm } from "@/lib/api/hooks/useForms";
+import { serviceNeededEnum } from "@/constants/data";
 
 const ContactUs = () => {
   const submitForm = useSubmitContactForm();
   const [formData, setFormData] = useState({
-    fullName: "",
+    firstName: "",
+    lastName: "",
     companyName: "",
     email: "",
     message: "",
+    serviceNeeded: serviceNeededEnum.OTHERS,
   });
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -29,7 +32,7 @@ const ContactUs = () => {
     try {
       await submitForm.mutateAsync(formData);
       setFormMessage({ type: 'success', text: 'Message sent successfully! We\'ll be in touch soon.' });
-      setFormData({ fullName: "", companyName: "", email: "", message: "" });
+      setFormData({ firstName: "", lastName: "", companyName: "", email: "", message: "", serviceNeeded: serviceNeededEnum.OTHERS });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
       setFormMessage({ type: 'error', text: errorMessage });
@@ -158,17 +161,33 @@ const ContactUs = () => {
                   </div>
                 )}
 
-                {/* Full Name */}
-                <div>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    placeholder="Enter your full name"
-                    required
-                    className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm sm:text-base text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
-                  />
+                {/* Name Fields - Side by Side */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* First Name */}
+                  <div>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="First Name"
+                      required
+                      className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm sm:text-base text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  
+                  {/* Last Name */}
+                  <div>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Last Name"
+                      required
+                      className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm sm:text-base text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
+                    />
+                  </div>
                 </div>
 
                 {/* Company Name */}
@@ -213,7 +232,7 @@ const ContactUs = () => {
                 <button
                   type="submit"
                   disabled={submitForm.isPending}
-                  className="w-full px-6 sm:px-8 py-3 sm:py-3.5 md:py-4 bg-black text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full px-6 cursor-pointer sm:px-8 py-3 sm:py-3.5 md:py-4 bg-black text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitForm.isPending ? (
                     <>
