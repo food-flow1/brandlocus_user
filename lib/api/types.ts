@@ -113,6 +113,7 @@ export interface ResetPasswordPayload {
 export interface ChangePasswordPayload {
   currentPassword?: string;
   newPassword?: string;
+  confirmNewPassword?: string;
   // For /password/change endpoint
   oldPassword?: string;
   password?: string;
@@ -200,10 +201,12 @@ export interface StartChatResponse {
  */
 export type ServiceNeededType =
   | "BRAND_DEVELOPMENT"
+  | "BUSINESS_QUEST"
   | "BUSINESS_DEVELOPMENT"
   | "CAPACITY_BUILDING"
   | "MARKETING_CONSULTING"
-  | "TRADE_INVESTMENT";
+  | "TRADE_AND_INVESTMENT_FACILITATION"
+  | "OTHERS";
 
 export interface FormSubmitPayload {
   firstName: string;
@@ -215,7 +218,8 @@ export interface FormSubmitPayload {
 }
 
 export interface ContactFormPayload {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   companyName: string;
   email: string;
   message: string;

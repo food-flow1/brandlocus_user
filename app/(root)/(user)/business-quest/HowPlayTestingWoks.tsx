@@ -12,6 +12,13 @@ const HowPlayTestingWoks = () => {
         "We collect quick feedback; you get perks."
     ];
 
+    const scrollToJoin = () => {
+        const joinSection = document.getElementById('join-playtest');
+        if (joinSection) {
+            joinSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <section className="w-full bg-white py-12 sm:py-16 md:py-20 lg:py-24">
             <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
@@ -22,6 +29,7 @@ const HowPlayTestingWoks = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
+                        onClick={scrollToJoin}
                         className="inline-block px-6 py-3 bg-gray-100 border border-gray-300 rounded-full text-gray-900 font-medium text-sm sm:text-base hover:bg-gray-200 transition-colors"
                     >
                         Join the playtest list

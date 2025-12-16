@@ -21,5 +21,5 @@ export const ROUTES = {
     FORGET_PASSWORD: "/forget-password",
     VERIFY_TOKEN: "/verify-token",
     LOGIN: "/login",
-    BOOK_CONSULTATION: "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ3HVns2f9bP13dwP41pRV5TEVahd2n2oNVCQnGx-k7cxG63_dRxrC3_6plKSO_IOZHb0p916kGQ",
+    BOOK_CONSULTATION: "https://calendar.app.google/6QmW8c2DK6ySefYD7",
 }

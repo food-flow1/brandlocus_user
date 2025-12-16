@@ -1,30 +1,35 @@
-"use client";
-
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import toast from 'react-hot-toast';
+import { useSubmitForm } from "@/lib/api/hooks/useForms";
+import CustomInput from "@/components/forms/CustomInput";
+import { usePathname } from 'next/navigation';
+import { getServiceFromPath } from '@/constants/data';
+
+// Validation Schema
+const validationSchema = Yup.object({
+  firstName: Yup.string().required("First name is required"),
+  lastName: Yup.string().required("Last name is required"),
+  email: Yup.string().email("Invalid email address").required("Email is required"),
+  companyName: Yup.string(),
+  message: Yup.string().required("Message is required"),
+});
+
+// Initial Values
+const initialValues = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  companyName: "",
+  message: "",
+};
 
 const RequestServiceForm: React.FC = () => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    companyName: "",
-    message: "",
-    message2: ""
-  });
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
-  };
+  const submitForm = useSubmitForm();
+  const pathname = usePathname();
+  const serviceNeeded = getServiceFromPath(pathname);
 
   return (
     <motion.div
@@ -38,99 +43,103 @@ const RequestServiceForm: React.FC = () => {
       </h3>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 md:p-8">
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-          {/* First Name */}
-          <div className="space-y-2">
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-              First Name
-            </label>
-            <input
-              type="text"
-              id="firstName"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent focus:bg-white transition-all text-sm sm:text-base"
-              required
-            />
-          </div>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={async (values, { resetForm }) => {
+            try {
+              await submitForm.mutateAsync({
+                ...values,
+                serviceNeeded: serviceNeeded,
+              });
+              toast.success("Request sent successfully! We'll be in touch soon.");
+              resetForm();
+            } catch (error) {
+              const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+              toast.error(errorMessage);
+            }
+          }}
+        >
+          {({ isSubmitting, errors, touched, values, handleChange, handleBlur }) => (
+            <Form className="space-y-4 sm:space-y-5">
+              {/* Name Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <CustomInput
+                  name="firstName"
+                  label="First Name"
+                  placeholder="First Name"
+                  variant="light"
+                />
+                <CustomInput
+                  name="lastName"
+                  label="Last Name"
+                  placeholder="Last Name"
+                  variant="light"
+                />
+              </div>
 
-          {/* Last Name */}
-          <div className="space-y-2">
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-              Last Name
-            </label>
-            <input
-              type="text"
-              id="lastName"
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent focus:bg-white transition-all text-sm sm:text-base"
-              required
-            />
-          </div>
+              {/* Email */}
+              <CustomInput
+                name="email"
+                label="Email"
+                type="email"
+                placeholder="Email address..."
+                variant="light"
+              />
 
-          {/* Email */}
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Email address..."
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent focus:bg-white transition-all text-sm sm:text-base"
-              required
-            />
-          </div>
+              {/* Company Name */}
+              <CustomInput
+                name="companyName"
+                label="Company Name"
+                placeholder="Your Company"
+                variant="light"
+              />
 
-          {/* Company Name */}
-          <div className="space-y-2">
-            <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
-              Company Name
-            </label>
-            <input
-              type="text"
-              id="companyName"
-              name="companyName"
-              placeholder="Your Company"
-              value={formData.companyName}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent focus:bg-white transition-all text-sm sm:text-base"
-            />
-          </div>
+              {/* Message - Custom Textarea since CustomInput doesn't support it yet */}
+              <div className="space-y-2">
+                <label htmlFor="message" className="block text-sm font-medium text-gray-600">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="Write your message, description..."
+                  value={values.message}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  rows={4}
+                  className={`w-full px-4 py-3 border rounded-2xl text-base focus:outline-none focus:ring-2 transition-all resize-none ${
+                    errors.message && touched.message
+                      ? "border-red-500 focus:ring-red-500 bg-white"
+                      : "border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-gray-400"
+                  }`}
+                />
+                {errors.message && touched.message && (
+                  <p className="text-sm text-red-600">{errors.message}</p>
+                )}
+              </div>
 
-          {/* Message */}
-          <div className="space-y-2">
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-              Message
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              placeholder="Write your message, description..."
-              value={formData.message}
-              onChange={handleInputChange}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent focus:bg-white transition-all resize-none text-sm sm:text-base"
-              required
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-3 sm:py-4 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors text-sm sm:text-base"
-          >
-            Submit
-          </button>
-        </form>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting || submitForm.isPending}
+                className="w-full bg-black text-white py-3 sm:py-4 px-6 rounded-xl font-semibold hover:bg-gray-800 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {submitForm.isPending ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending...
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </button>
+            </Form>
+          )}
+        </Formik>
       </div>
     </motion.div>
   );

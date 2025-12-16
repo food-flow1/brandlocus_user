@@ -1,7 +1,16 @@
+"use client";
+
 import React from 'react'
 import { MdArrowOutward } from 'react-icons/md'
 
 const Enpowering = () => {
+    const scrollToJoin = () => {
+        const joinSection = document.getElementById('join-playtest');
+        if (joinSection) {
+            joinSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <section className="w-full bg-white pb-4 sm:pb-6 md:pb-8 lg:pb-10">
             <div className="max-width-container mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
@@ -26,7 +35,10 @@ const Enpowering = () => {
                     </p>
 
                     {/* CTA Button */}
-                    <button className="inline-flex items-center gap-4 px-6 py-3 sm:px-8  bg-black text-white rounded-full hover:bg-gray-900 transition-colors font-medium text-base sm:text-lg">
+                    <button 
+                        onClick={scrollToJoin}
+                        className="inline-flex cursor-pointer items-center gap-4 px-6 py-3 sm:px-8  bg-black text-white rounded-full hover:bg-gray-900 transition-colors font-medium text-base sm:text-lg"
+                    >
                         <span>Join the Playtest List</span>
                         <div className=" bg-white rounded flex items-center justify-center">
                             <MdArrowOutward size={20} className='text-black' />

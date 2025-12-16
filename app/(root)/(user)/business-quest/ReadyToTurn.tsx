@@ -12,15 +12,8 @@ import CustomInput from "@/components/forms/CustomInput";
 import CustomSelect, { CustomSelectOption } from "@/components/forms/CustomSelect";
 import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import { ServiceNeededType } from "@/lib/api/types";
-
-// Service options for the select dropdown
-const serviceOptions: CustomSelectOption[] = [
-  { id: "BRAND_DEVELOPMENT", label: "Brand Development" },
-  { id: "BUSINESS_DEVELOPMENT", label: "Business Development" },
-  { id: "CAPACITY_BUILDING", label: "Capacity Building" },
-  { id: "MARKETING_CONSULTING", label: "Marketing Consulting" },
-  { id: "TRADE_INVESTMENT", label: "Trade & Investment" },
-];
+import { serviceOptions } from "@/constants/data";
+import toast from 'react-hot-toast';
 
 // Form validation schema
 const validationSchema = Yup.object({
@@ -159,16 +152,22 @@ const ReadyToTurn = () => {
                   validationSchema={validationSchema}
                   onSubmit={async (values, { resetForm }) => {
                     if (!values.serviceNeeded) return;
-                    await submitForm.mutateAsync({
-                      firstName: values.firstName,
-                      lastName: values.lastName,
-                      email: values.email,
-                      serviceNeeded: values.serviceNeeded as ServiceNeededType,
-                      companyName: values.companyName,
-                      message: values.message,
-                    });
-                    resetForm();
-                    setSelectedService(null);
+                    try {
+                      await submitForm.mutateAsync({
+                        firstName: values.firstName,
+                        lastName: values.lastName,
+                        email: values.email,
+                        serviceNeeded: values.serviceNeeded as ServiceNeededType,
+                        companyName: values.companyName,
+                        message: values.message,
+                      });
+                      toast.success("Message sent successfully! We'll be in touch soon.");
+                      resetForm();
+                      setSelectedService(null);
+                    } catch (error) {
+                      const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+                      toast.error(errorMessage);
+                    }
                   }}
                 >
                   {({ isSubmitting, setFieldValue, values, errors, touched }) => (
@@ -204,14 +203,14 @@ const ReadyToTurn = () => {
                         />
                         <div className="sm:col-span-2">
                           <CustomSelect
-                            label="Service Needed"
+                            label="Business Sectors"
                             options={serviceOptions}
                             selected={selectedService}
                             onChange={(option) => {
                               setSelectedService(option);
                               setFieldValue("serviceNeeded", option.id);
                             }}
-                            placeholder="Select a service"
+                            placeholder="Select a sector"
                             variant="dark"
                           />
                           {touched.serviceNeeded && errors.serviceNeeded && (

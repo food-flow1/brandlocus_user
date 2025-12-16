@@ -8,15 +8,7 @@ import CustomSelect, { CustomSelectOption } from "@/components/forms/CustomSelec
 import CustomInput from "@/components/forms/CustomInput";
 import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import { ServiceNeededType } from "@/lib/api/types";
-
-// Service options for the select dropdown
-const serviceOptions: CustomSelectOption[] = [
-    { id: "BRAND_DEVELOPMENT", label: "Brand Development" },
-    { id: "BUSINESS_DEVELOPMENT", label: "Business Development" },
-    { id: "CAPACITY_BUILDING", label: "Capacity Building" },
-    { id: "MARKETING_CONSULTING", label: "Marketing Consulting" },
-    { id: "TRADE_INVESTMENT", label: "Trade & Investment" },
-];
+import { serviceOptions } from "@/constants/data";
 
 // Form validation schema
 const validationSchema = Yup.object({
@@ -44,7 +36,7 @@ const JoinPlayTest = () => {
     const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     return (
-        <section className="w-full bg-[#050505] text-white py-16 sm:py-20 md:py-24 lg:py-28 px-4 sm:px-6 md:px-8 relative overflow-hidden">
+        <section id="join-playtest" className="w-full bg-[#050505] text-white py-16 sm:py-20 md:py-24 lg:py-28 px-4 sm:px-6 md:px-8 relative overflow-hidden">
             {/* Background accents */}
             <div className="absolute inset-0 pointer-events-none">
                 <motion.div

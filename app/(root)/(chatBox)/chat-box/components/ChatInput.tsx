@@ -44,7 +44,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, isLoading, isPending, d
                                 !message.trim()
                                     ? "Type a message to send"
                                     : disabled
-                                    ? "Waiting for AI response..."
+                                    ? "Waiting for Mr.A response..."
                                     : "Send message"
                             }
                         >
@@ -70,7 +70,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, isLoading, isPending, d
                                     <div className="w-1 h-1 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                                     <div className="w-1 h-1 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                                 </div>
-                                <span>Waiting for AI response...</span>
+                                <span>Waiting for Mr. A response...</span>
                             </motion.div>
                         )}
                     </AnimatePresence>
