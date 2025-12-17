@@ -36,6 +36,11 @@ export const authService = {
       isActive: responseData.isActive,
       role: responseData.role,
     };
+
+    // Strict role check
+    if (user.role !== 'USER') {
+      throw { message: "Access denied: authorized Users only." };
+    }
     
     // Store token, refresh token, and user data
     if (token) {
