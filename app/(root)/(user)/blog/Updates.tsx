@@ -92,7 +92,7 @@ const Updates = ({ scrapedData }: UpdatesProps) => {
         {/* Blog Posts Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
           {updates.map((post, index) => (
-            <BlogCard key={post.slug || index} post={post} index={index} />
+            <BlogCard key={post.id || post.slug || index} post={post} index={index} />
           ))}
         </div>
 

@@ -3,6 +3,9 @@
  */
 
 export interface WordPressUpdate {
+  /** Post ID */
+  id?: string;
+
   /** Post title */
   title: string;
   
