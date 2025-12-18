@@ -22,7 +22,7 @@ const BusinessQuestPage = () => {
       <JoinPlayTest />
       <PlayTester />
       <FAQBusiness />
-      <ReadyToTurn />
+      {/* <ReadyToTurn /> */}
     </div>
   )
 }
