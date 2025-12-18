@@ -15,7 +15,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, isLoading, isPending, d
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!message.trim() || disabled) return;
-        
+
         onSubmit(message);
         setMessage('');
     };
@@ -44,8 +44,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSubmit, isLoading, isPending, d
                                 !message.trim()
                                     ? "Type a message to send"
                                     : disabled
-                                    ? "Waiting for Mr.A response..."
-                                    : "Send message"
+                                        ? "Waiting for Mr.A response..."
+                                        : "Send message"
                             }
                         >
                             {isPending ? (

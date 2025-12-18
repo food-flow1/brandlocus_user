@@ -49,6 +49,7 @@ export const serviceNeededEnum = {
     CAPACITY_BUILDING: "CAPACITY_BUILDING",
     MARKETING_CONSULTING: "MARKETING_CONSULTING",
     TRADE_AND_INVESTMENT_FACILITATION: "TRADE_AND_INVESTMENT_FACILITATION",
+    CONTACT: "CONTACT",
     OTHERS: "OTHERS",
 } as const;
 
@@ -73,3 +74,20 @@ export const getServiceFromPath = (pathname: string): ServiceNeededType => {
   if (pathname.includes('/services/trade-investment')) return serviceNeededEnum.TRADE_AND_INVESTMENT_FACILITATION;
   return serviceNeededEnum.OTHERS;
 };
+
+  export  const industryOptions = [
+        { id: "technology", label: "Technology" },
+        { id: "trade-energy-climate", label: "Trade Energy & Climate" },
+        { id: "agriculture", label: "Agriculture" },
+        { id: "manufacturing", label: "Manufacturing" },
+        { id: "finance", label: "Finance" },
+        { id: "healthcare", label: "Healthcare" },
+        { id: "retail", label: "Retail" },
+        { id: "education", label: "Education" },
+        { id: "real-estate", label: "Real Estate" },
+        { id: "hospitality", label: "Hospitality" },
+        { id: "transport-logistics", label: "Transport & Logistics" },
+        { id: "creative-media-culture", label: "Creative Media & Culture" },
+        { id: "public-policy", label: "Public Policy" },
+        { id: "others", label: "Others" },
+    ];

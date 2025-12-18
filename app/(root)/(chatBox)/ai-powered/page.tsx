@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Country, State } from 'country-state-city';
 import DecorativeBackground from '@/components/common/DecorativeBackground';
+import { industryOptions } from '@/constants/data';
 
 interface FormValues {
     firstName: string;
@@ -31,17 +32,6 @@ const AIPowered = () => {
     // Get Nigeria's ISO code
     const nigeriaCountry = Country.getAllCountries().find(c => c.name === 'Nigeria');
     const defaultCountryCode = nigeriaCountry?.isoCode || 'NG';
-
-    const industryOptions: CustomSelectOption[] = [
-        { id: "tech", label: "Technology" },
-        { id: "finance", label: "Finance" },
-        { id: "healthcare", label: "Healthcare" },
-        { id: "retail", label: "Retail" },
-        { id: "manufacturing", label: "Manufacturing" },
-        { id: "education", label: "Education" },
-        { id: "real-estate", label: "Real Estate" },
-        { id: "hospitality", label: "Hospitality" },
-    ];
 
     // Get all countries as options
     const countryOptions: CustomSelectOption[] = useMemo(() => {
@@ -165,7 +155,7 @@ const AIPowered = () => {
                 position="top-right"
                 toastOptions={{
                     className: '',
-                    duration: 4000,
+                    duration: 5000,
                     style: {
                         background: '#1a1a1a',
                         color: '#fff',
@@ -348,7 +338,7 @@ const AIPowered = () => {
                                                      {/* Industry Sector - Full Width */}
                                                 <div className="space-y-2">
                                                     <label className="block text-sm font-medium text-white/70">
-                                                        Industry Sector
+                                                        Sector
                                                     </label>
                                                     <CustomSelect
                                                         options={industryOptions}
@@ -365,9 +355,6 @@ const AIPowered = () => {
                                                     </ErrorMessage>
                                                 </div>
                                                 </div>
-
-                                               
-
                                                    {/* Business Brief - Full Width */}
                                                 <div>
                                                     <label className="block text-sm font-medium text-white/70 mb-2">

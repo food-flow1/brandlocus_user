@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -8,14 +8,14 @@ import CustomSelect, { CustomSelectOption } from "@/components/forms/CustomSelec
 import CustomInput from "@/components/forms/CustomInput";
 import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import { ServiceNeededType } from "@/lib/api/types";
-import { serviceOptions } from "@/constants/data";
+import { industryOptions } from "@/constants/data";
 
 // Form validation schema
 const validationSchema = Yup.object({
     firstName: Yup.string().required("First name is required").min(2, "First name must be at least 2 characters"),
     lastName: Yup.string().required("Last name is required").min(2, "Last name must be at least 2 characters"),
     email: Yup.string().email("Invalid email address").required("Email is required"),
-    serviceNeeded: Yup.string().required("Please select a sector"),
+    industryName: Yup.string().required("Please select a sector"),
     companyName: Yup.string().required("Company name is required").min(2, "Company name must be at least 2 characters"),
     message: Yup.string().required("Business brief is required").min(10, "Business brief must be at least 10 characters"),
 });
@@ -25,7 +25,7 @@ const initialValues = {
     firstName: "",
     lastName: "",
     email: "",
-    serviceNeeded: "" as ServiceNeededType | "",
+    industryName: "" as ServiceNeededType | "",
     companyName: "",
     message: "",
 };
@@ -79,14 +79,14 @@ const JoinPlayTest = () => {
                     initialValues={initialValues}
                     validationSchema={validationSchema}
                     onSubmit={async (values, { resetForm }) => {
-                        if (!values.serviceNeeded) return;
+                        if (!values.industryName) return;
                         setFormMessage(null);
                         try {
                             await submitForm.mutateAsync({
                                 firstName: values.firstName,
                                 lastName: values.lastName,
                                 email: values.email,
-                                serviceNeeded: values.serviceNeeded as ServiceNeededType,
+                                industryName: values.industryName as ServiceNeededType,
                                 companyName: values.companyName,
                                 message: values.message,
                             });
@@ -146,17 +146,17 @@ const JoinPlayTest = () => {
                                 <div className="sm:col-span-2">
                                     <CustomSelect
                                         label="Sector"
-                                        options={serviceOptions}
+                                        options={industryOptions}
                                         selected={selectedService}
                                         onChange={(option) => {
                                             setSelectedService(option);
-                                            setFieldValue("serviceNeeded", option.id);
+                                            setFieldValue("industryName", option.id);
                                         }}
                                         placeholder="Select a sector"
                                         variant="dark"
                                     />
-                                    {touched.serviceNeeded && errors.serviceNeeded && (
-                                        <p className="text-red-400 text-xs mt-1">{errors.serviceNeeded}</p>
+                                    {touched.industryName && errors.industryName && (
+                                        <p className="text-red-400 text-xs mt-1">{errors.industryName}</p>
                                     )}
                                 </div>
                                 <div className="sm:col-span-2">
