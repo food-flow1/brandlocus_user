@@ -64,9 +64,7 @@ const SetPasswordPage = () => {
         confirmPassword: Yup.string()
             .required('Please confirm your password')
             .oneOf([Yup.ref('password')], 'Passwords do not match'),
-        agreed: Yup.boolean()
-            .oneOf([true], 'You must agree to the terms to continue')
-            .required('You must agree to the terms to continue'),
+        agreed: Yup.boolean(),
     });
 
     const initialValues: PasswordFormValues = {
