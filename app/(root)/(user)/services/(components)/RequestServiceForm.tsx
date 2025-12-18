@@ -8,7 +8,9 @@ import { useState } from 'react';
 import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import CustomInput from "@/components/forms/CustomInput";
 import { usePathname } from 'next/navigation';
-import { getServiceFromPath } from '@/constants/data';
+import { getServiceFromPath, industryOptions } from '@/constants/data';
+import CustomSelect, { CustomSelectOption } from '@/components/forms/CustomSelect';
+import { ServiceNeededType } from "@/lib/api/types";
 
 // Validation Schema
 const validationSchema = Yup.object({
@@ -16,6 +18,7 @@ const validationSchema = Yup.object({
   lastName: Yup.string().required("Last name is required"),
   email: Yup.string().email("Invalid email address").required("Email is required"),
   companyName: Yup.string(),
+  industryName: Yup.string().required("Please select a sector"),
   message: Yup.string().required("Message is required"),
 });
 
@@ -25,6 +28,7 @@ const initialValues = {
   lastName: "",
   email: "",
   companyName: "",
+  industryName: "",
   message: "",
 };
 
@@ -32,6 +36,7 @@ const RequestServiceForm: React.FC = () => {
   const submitForm = useSubmitForm();
   const pathname = usePathname();
   const serviceNeeded = getServiceFromPath(pathname);
+  const [selectedSector, setSelectedSector] = useState<CustomSelectOption | null>(null);
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   return (
@@ -54,17 +59,19 @@ const RequestServiceForm: React.FC = () => {
             try {
               await submitForm.mutateAsync({
                 ...values,
+                industryName: values.industryName as ServiceNeededType,
                 serviceNeeded: serviceNeeded,
               });
               setFormMessage({ type: 'success', text: "Request sent successfully! We'll be in touch soon." });
               resetForm();
+              setSelectedSector(null);
             } catch (error) {
               const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
               setFormMessage({ type: 'error', text: errorMessage });
             }
           }}
         >
-          {({ isSubmitting, errors, touched, values, handleChange, handleBlur }) => (
+          {({ isSubmitting, errors, touched, values, handleChange, handleBlur, setFieldValue }) => (
             <Form className="space-y-4 sm:space-y-5">
               {/* Form Message */}
               {formMessage && (
@@ -108,6 +115,24 @@ const RequestServiceForm: React.FC = () => {
                 placeholder="Your Company"
                 variant="light"
               />
+
+              {/* Sector Selection */}
+              <div className="space-y-2">
+                <CustomSelect
+                  label="Sector"
+                  options={industryOptions}
+                  selected={selectedSector}
+                  onChange={(option) => {
+                    setSelectedSector(option);
+                    setFieldValue("industryName", option.id);
+                  }}
+                  placeholder="Select a sector"
+                  variant="light"
+                />
+                {touched.industryName && errors.industryName && (
+                  <p className="text-sm text-red-600">{errors.industryName}</p>
+                )}
+              </div>
 
               {/* Message - Custom Textarea since CustomInput doesn't support it yet */}
               <div className="space-y-2">
