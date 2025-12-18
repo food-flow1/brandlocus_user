@@ -13,7 +13,7 @@ interface BlogCardProps {
 
 export default function BlogCard({ post, index = 0 }: BlogCardProps) {
   return (
-    <Link href={`/blog/${post.slug}`}>
+    <Link href={`/blog/${post.slug}?id=${post.id}`}>
       <motion.article
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
