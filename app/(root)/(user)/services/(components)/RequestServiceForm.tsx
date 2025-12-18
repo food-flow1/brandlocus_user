@@ -1,8 +1,10 @@
+"use client";
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import toast from 'react-hot-toast';
+import { useState } from 'react';
 import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import CustomInput from "@/components/forms/CustomInput";
 import { usePathname } from 'next/navigation';
@@ -30,6 +32,7 @@ const RequestServiceForm: React.FC = () => {
   const submitForm = useSubmitForm();
   const pathname = usePathname();
   const serviceNeeded = getServiceFromPath(pathname);
+  const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   return (
     <motion.div
@@ -47,21 +50,32 @@ const RequestServiceForm: React.FC = () => {
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={async (values, { resetForm }) => {
+            setFormMessage(null);
             try {
               await submitForm.mutateAsync({
                 ...values,
                 serviceNeeded: serviceNeeded,
               });
-              toast.success("Request sent successfully! We'll be in touch soon.");
+              setFormMessage({ type: 'success', text: "Request sent successfully! We'll be in touch soon." });
               resetForm();
             } catch (error) {
               const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-              toast.error(errorMessage);
+              setFormMessage({ type: 'error', text: errorMessage });
             }
           }}
         >
           {({ isSubmitting, errors, touched, values, handleChange, handleBlur }) => (
             <Form className="space-y-4 sm:space-y-5">
+              {/* Form Message */}
+              {formMessage && (
+                <div className={`p-4 rounded-xl text-sm font-medium ${
+                  formMessage.type === 'success'
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}>
+                  {formMessage.text}
+                </div>
+              )}
               {/* Name Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <CustomInput

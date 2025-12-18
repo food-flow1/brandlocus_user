@@ -15,7 +15,7 @@ const ContactUs = () => {
     companyName: "",
     email: "",
     message: "",
-    serviceNeeded: serviceNeededEnum.OTHERS,
+    serviceNeeded: serviceNeededEnum.CONTACT,
   });
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -32,7 +32,7 @@ const ContactUs = () => {
     try {
       await submitForm.mutateAsync(formData);
       setFormMessage({ type: 'success', text: 'Message sent successfully! We\'ll be in touch soon.' });
-      setFormData({ firstName: "", lastName: "", companyName: "", email: "", message: "", serviceNeeded: serviceNeededEnum.OTHERS });
+      setFormData({ firstName: "", lastName: "", companyName: "", email: "", message: "", serviceNeeded: serviceNeededEnum.CONTACT });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
       setFormMessage({ type: 'error', text: errorMessage });

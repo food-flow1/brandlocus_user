@@ -212,7 +212,8 @@ export interface FormSubmitPayload {
   firstName: string;
   lastName: string;
   email: string;
-  serviceNeeded: ServiceNeededType;
+  serviceNeeded?: ServiceNeededType;
+  industryName?: ServiceNeededType;
   companyName: string;
   message: string;
 }

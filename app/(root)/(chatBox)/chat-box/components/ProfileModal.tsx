@@ -36,16 +36,8 @@ interface PasswordFormValues {
 
 
 
-const industryOptions: CustomSelectOption[] = [
-    { id: "tech", label: "Technology" },
-    { id: "finance", label: "Finance" },
-    { id: "healthcare", label: "Healthcare" },
-    { id: "retail", label: "Retail" },
-    { id: "manufacturing", label: "Manufacturing" },
-    { id: "education", label: "Education" },
-    { id: "real-estate", label: "Real Estate" },
-    { id: "hospitality", label: "Hospitality" },
-];
+import { industryOptions } from '@/constants/data';
+// Remove local industryOptions definition
 
 const profileValidationSchema = Yup.object({
     firstName: Yup.string().required('First name is required'),
@@ -198,17 +190,38 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         }));
     };
 
+    // Helper functions to map names to IDs
+    const getCountryIso = (countryName?: string) => {
+        if (!countryName) return '';
+        // Try to find by name directly
+        const country = Country.getAllCountries().find(c => c.name.toLowerCase() === countryName.toLowerCase());
+        if (country) return country.isoCode;
+        // If not found, maybe it's already an ISO code?
+        const byIso = Country.getCountryByCode(countryName);
+        return byIso ? byIso.isoCode : '';
+    };
+
+    const getStateIso = (countryIso: string, stateName?: string) => {
+        if (!countryIso || !stateName) return '';
+        const states = State.getStatesOfCountry(countryIso);
+        const state = states.find(s => s.name.toLowerCase() === stateName.toLowerCase() || s.isoCode.toLowerCase() === stateName.toLowerCase());
+        return state ? state.isoCode : '';
+    };
+
+    const getIndustryId = (industryName?: string) => {
+        if (!industryName) return '';
+        const industry = industryOptions.find(i => i.label.toLowerCase() === industryName.toLowerCase());
+        return industry ? industry.id : industryName.toLowerCase(); // Fallback to lowercase name if no match
+    };
+
     const profileInitialValues: ProfileFormValues = {
         firstName: profile?.firstName || profile?.first_name || '',
         lastName: profile?.lastName || profile?.last_name || '',
         email: profile?.email || '',
-        // API returns ISO code (e.g., "NG" for Nigeria)
-        country: profile?.country || '',
-        // API returns ISO code (e.g., "AB" for Abia)
-        state: profile?.state || '',
+        country: getCountryIso(profile?.country),
+        state: getStateIso(getCountryIso(profile?.country), profile?.state),
         businessName: profile?.businessName || '',
-        // API returns lowercase id (e.g., "finance", "tech")
-        industryName: profile?.industryName || '',
+        industryName: getIndustryId(profile?.industryName),
         businessBrief: profile?.businessBrief || '',
     };
 
@@ -645,7 +658,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                                 <div className="grid grid-cols-2 gap-4">
                                                     <div className="space-y-2">
                                                         <label className="block text-sm font-medium text-white/70">
-                                                            Industry Name
+                                                            Sector
                                                         </label>
                                                         <CustomSelect
                                                             options={industryOptions}

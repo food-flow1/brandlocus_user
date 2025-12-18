@@ -38,23 +38,44 @@ const OurTeam = () => {
     },
   ];
 
+  const [visibleCards, setVisibleCards] = React.useState(3);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setVisibleCards(1);
+      } else if (window.innerWidth < 1024) {
+        setVisibleCards(2);
+      } else {
+        setVisibleCards(3);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Safety reset for currentIndex when visibleCards changes
+  React.useEffect(() => {
+    const maxIndex = Math.max(0, teamMembers.length - visibleCards);
+    if (currentIndex > maxIndex) {
+      setCurrentIndex(maxIndex);
+    }
+  }, [visibleCards, teamMembers.length, currentIndex]);
+
   const nextSlide = () => {
     setCurrentIndex((prev) => {
-      const cardsPerPage = 4;
-      const nextIndex = prev + cardsPerPage;
-      // Loop back to start if we've reached the end
-      return nextIndex >= teamMembers.length ? 0 : nextIndex;
+      const nextIndex = prev + 1;
+      return nextIndex > teamMembers.length - visibleCards ? 0 : nextIndex;
     });
   };
 
   const prevSlide = () => {
     setCurrentIndex((prev) => {
-      const cardsPerPage = 4;
-      const prevIndex = prev - cardsPerPage;
-      // Move to the last valid set if we go negative
+      const prevIndex = prev - 1;
       if (prevIndex < 0) {
-        const maxIndex = Math.max(0, teamMembers.length - cardsPerPage);
-        return maxIndex;
+        return Math.max(0, teamMembers.length - visibleCards);
       }
       return prevIndex;
     });
@@ -112,9 +133,13 @@ const OurTeam = () => {
           {/* Cards Container */}
           <div className="overflow-hidden w-full">
             <motion.div
-              className="flex gap-6 sm:gap-8 justify-center"
+              className="flex gap-6 sm:gap-8 justify-start"
               animate={{
-                x: `calc(-${currentIndex} * (25% + 1.5rem))`,
+                x: visibleCards === 1 
+                  ? `calc(-${currentIndex} * (100% + 1.5rem))`
+                  : visibleCards === 2
+                  ? `calc(-${currentIndex} * (50% + 1rem))`
+                  : `calc(-${currentIndex} * (33.333% + 1.25rem))`,
               }}
               transition={{
                 type: "tween",
@@ -125,7 +150,7 @@ const OurTeam = () => {
               {teamMembers.map((member, index) => (
                 <div
                   key={`${member.name}-${index}`}
-                  className="relative rounded-xl sm:rounded-2xl overflow-hidden group shrink-0 w-full sm:w-1/2 lg:w-[calc(25%-1.125rem)] cursor-pointer"
+                  className="relative rounded-xl sm:rounded-2xl overflow-hidden group shrink-0 w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] cursor-pointer"
                   onClick={() => setSelectedMember(member)}
                 >
                   {/* Card Background with Gradient */}
@@ -161,7 +186,7 @@ const OurTeam = () => {
           </div>
 
           {/* Navigation Arrows */}
-          {teamMembers?.length > 4 && <div className="flex justify-center items-center gap-4 mt-8 sm:mt-10">
+          {teamMembers?.length > visibleCards && <div className="flex justify-center items-center gap-4 mt-8 sm:mt-10">
             <button
               onClick={prevSlide}
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors duration-200 shadow-lg"
@@ -206,18 +231,19 @@ const OurTeam = () => {
                 {/* Close Button */}
                 <button
                   onClick={() => setSelectedMember(null)}
-                  className="absolute top-4 right-4 p-2 rounded-full bg-black/10 hover:bg-black/20 text-black transition-colors z-20"
+                  className="absolute top-4 right-4 p-2.5 rounded-full bg-white text-black shadow-xl border border-gray-200 hover:bg-gray-50 transition-all duration-200 z-20 hover:scale-110 active:scale-95"
+                  aria-label="Close modal"
                 >
                   <FiX className="w-5 h-5" />
                 </button>
 
                 {/* Left Side (Image) - Mobile: Top */}
-                <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-gray-100 shrink-0">
+                <div className="w-full md:w-2/5 h-[320px] sm:h-[400px] md:h-auto relative bg-gray-100 shrink-0">
                   <Image
                     src={selectedMember.image || placeholderImage}
                     alt={selectedMember.name}
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
                   />
                 </div>
 
