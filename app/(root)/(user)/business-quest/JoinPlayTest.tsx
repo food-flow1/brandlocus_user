@@ -75,6 +75,7 @@ const JoinPlayTest = () => {
                 </div>
 
                 {/* Form */}
+                
                 <Formik
                     initialValues={initialValues}
                     validationSchema={validationSchema}
