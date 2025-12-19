@@ -8,7 +8,7 @@ import CustomSelect, { CustomSelectOption } from "@/components/forms/CustomSelec
 import CustomInput from "@/components/forms/CustomInput";
 import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import { ServiceNeededType } from "@/lib/api/types";
-import { industryOptions } from "@/constants/data";
+import { industryOptions, serviceNeededEnum } from "@/constants/data";
 
 // Form validation schema
 const validationSchema = Yup.object({
@@ -75,6 +75,7 @@ const JoinPlayTest = () => {
                 </div>
 
                 {/* Form */}
+                
                 <Formik
                     initialValues={initialValues}
                     validationSchema={validationSchema}
@@ -89,6 +90,7 @@ const JoinPlayTest = () => {
                                 industryName: values.industryName as ServiceNeededType,
                                 companyName: values.companyName,
                                 message: values.message,
+                                serviceNeeded: serviceNeededEnum.PLAY_TEST,
                             });
                             setFormMessage({ type: 'success', text: 'Form submitted successfully! We\'ll be in touch soon.' });
                             resetForm();

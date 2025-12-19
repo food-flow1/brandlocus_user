@@ -206,6 +206,8 @@ export type ServiceNeededType =
   | "CAPACITY_BUILDING"
   | "MARKETING_CONSULTING"
   | "TRADE_AND_INVESTMENT_FACILITATION"
+  | "CONTACT"
+  | "PLAY_TEST"
   | "OTHERS";
 
 export interface FormSubmitPayload {
