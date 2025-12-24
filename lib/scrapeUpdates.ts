@@ -13,7 +13,7 @@
 
 import { WordPressUpdate, ScrapedUpdatesResult } from '@/types/wordpress';
 
-const API_ENDPOINT = 'https://brandlocusgroup.com/wp-json/wp/v2/posts';
+const API_ENDPOINT = 'https://wp.brandlocusgroup.com/wp-json/wp/v2/posts';
 
 /**
  * Fetches blog updates from WordPress API
