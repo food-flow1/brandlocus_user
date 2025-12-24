@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Toaster } from "react-hot-toast";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: "BrandLocus Limited",
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>{children}</QueryProvider>
         <Toaster position="top-right" containerStyle={{ zIndex: 99999 }} />
+        <GoogleAnalytics gaId="G-KT5T5VKHDN" />
       </body>
     </html>
   );
