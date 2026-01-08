@@ -152,9 +152,9 @@ const BlogDetailPage = ({ params }: BlogDetailPageProps) => {
                     {/* Main Content Area */}
                     <aside className="lg:w-[75%] w-full">
 
-                        {/* Featured Image */}
-                        {post.image && (
-                            <div className="px-6 sm:px-8 lg:pr-12 ">
+                        {/* Featured Image - Only show if not already in content */}
+                        {post.image && !post.content?.includes(post.image) && (
+                            <div className="px-6 sm:px-8 lg:pr-12 mb-8">
                                 <div className="relative w-full aspect-[21/9] rounded-2xl overflow-hidden bg-gray-200 border border-gray-200 shadow-md">
                                     <Image
                                         src={post.image}
@@ -173,181 +173,256 @@ const BlogDetailPage = ({ params }: BlogDetailPageProps) => {
                             <div className="">
                                 <div
                                     className="
-      prose max-w-none
+      prose prose-lg max-w-none
 
       /* Base typography */
-      prose-headings:font-sans
+      prose-headings:font-serif
       prose-headings:tracking-tight
       prose-headings:text-black
 
-      /* H2 – Main sections */
-      prose-h2:!text-[36px]
-      sm:prose-h2:!text-[48px]
-      prose-h2:!font-medium
-      prose-h2:!mt-12
-      prose-h2:!mb-4
-      prose-h2:leading-[1.2]
+      /* H2 – Main sections - More balanced size */
+      prose-h2:!text-[24px]
+      sm:prose-h2:!text-[32px]
+      prose-h2:!font-bold
+      prose-h2:!mt-16
+      prose-h2:!mb-6
+      prose-h2:!leading-[1.25]
 
       /* H3 – Subsections */
-      prose-h3:!text-[28px]
-      sm:prose-h3:!text-[36px]
-      prose-h3:!font-medium
-      prose-h3:!mt-8
-      prose-h3:!mb-3
-      prose-h3:leading-[1.3]
+      prose-h3:!text-[20px]
+      sm:prose-h3:!text-[24px]
+      prose-h3:!font-semibold
+      prose-h3:!mt-10
+      prose-h3:!mb-4
+      prose-h3:!leading-[1.3]
 
       /* H4 – Minor sections */
-      prose-h4:text-[19px]
-      prose-h4:font-bold
-      prose-h4:!mt-6
-      prose-h4:!mb-2
+      prose-h4:!text-[18px]
+      prose-h4:!font-semibold
+      prose-h4:!mt-8
+      prose-h4:!mb-3
 
-      /* Paragraphs */
-      prose-p:text-[17px]
-      prose-p:leading-[1.75]
+      /* Paragraphs - Improved readability */
+      prose-p:text-[18px]
+      prose-p:!leading-[1.8]
       prose-p:text-gray-700
-      prose-p:mb-6
+      prose-p:!mb-6
       prose-p:font-normal
+
+      /* First paragraph - Slightly larger */
+      [&>p:first-of-type]:text-[19px]
+      [&>p:first-of-type]:!leading-[1.8]
+      [&>p:first-of-type]:text-gray-800
 
       /* Links */
       prose-a:!text-black
+      prose-a:!font-medium
       prose-a:!underline
-      prose-a:!underline-offset-2
-      prose-a:!decoration-gray-300
+      prose-a:!underline-offset-4
+      prose-a:!decoration-gray-400
       hover:prose-a:!decoration-black
-      prose-a:!transition-colors
+      prose-a:!transition-all
+      prose-a:!duration-200
 
-      /* Lists */
-      prose-ul:!my-6
-      prose-ul:!list-disc
-      prose-ul:!pl-6
-      prose-ul:!space-y-2
+      /* Lists - Better visual distinction */
+      prose-ul:!my-8
+      prose-ul:!list-none
+      prose-ul:!pl-0
+      prose-ul:!space-y-3
 
-      prose-ol:!my-6
+      prose-ol:!my-8
       prose-ol:!list-decimal
       prose-ol:!pl-6
-      prose-ol:!space-y-2
+      prose-ol:!space-y-3
 
-      prose-li:!text-[17px]
-      prose-li:!leading-[1.75]
+      prose-li:!text-[18px]
+      prose-li:!leading-[1.8]
       prose-li:!text-gray-700
       prose-li:!font-normal
-      prose-li:!mb-2
+      prose-li:!mb-0
+      prose-li:!pl-8
+      prose-li:relative
+      
+      /* Custom bullet points */
+      prose-li:before:content-['•']
+      prose-li:before:absolute
+      prose-li:before:left-0
+      prose-li:before:text-black
+      prose-li:before:font-bold
+      prose-li:before:text-[20px]
 
-      prose-li::marker:text-gray-900
+      /* Blockquotes - Enhanced visual style */
+      prose-blockquote:!my-10
+      prose-blockquote:!border-l-4
+      prose-blockquote:!border-black
+      prose-blockquote:!bg-gray-50
+      prose-blockquote:!pl-8
+      prose-blockquote:!pr-8
+      prose-blockquote:!py-6
+      prose-blockquote:!rounded-r-lg
+      prose-blockquote:!not-italic
+      prose-blockquote:!text-gray-800
 
-      /* Blockquotes */
-      prose-blockquote:my-8
-      prose-blockquote:border-l-[3px]
-      prose-blockquote:border-gray-300
-      prose-blockquote:pl-6
-      prose-blockquote:italic
-      prose-blockquote:text-gray-600
-      prose-blockquote:text-[17px]
+      prose-blockquote:!text-[18px]
+      prose-blockquote:!leading-[1.7]
+      prose-blockquote:!font-medium
 
-      /* Strong / emphasis */
-      prose-strong:text-black
-      prose-strong:font-bold
-      prose-em:text-gray-700
-      prose-em:italic
+      /* Strong / emphasis - Better distinction */
+      prose-strong:!text-black
+      prose-strong:!font-bold
+      prose-em:!text-gray-700
+      prose-em:!italic
 
       /* Images */
-      prose-img:my-10
-      prose-img:rounded-lg
-      prose-img:w-full
+      prose-img:!my-12
+      prose-img:!rounded-xl
+      prose-img:!w-full
+      prose-img:!shadow-sm
 
       /* Inline code */
-      prose-code:bg-gray-100
-      prose-code:text-gray-800
-      prose-code:px-2
-      prose-code:py-1
-      prose-code:rounded
-      prose-code:text-sm
-      prose-code:font-mono
-      prose-code:before:content-['']
-      prose-code:after:content-['']
+      prose-code:!bg-gray-100
+      prose-code:!text-gray-900
+      prose-code:!px-2
+      prose-code:!py-1
+      prose-code:!rounded
+      prose-code:!text-[16px]
+      prose-code:!font-mono
+      prose-code:before:!content-['']
+      prose-code:after:!content-['']
 
       /* Tables */
-      prose-table:my-8
-      prose-table:w-full
+      prose-table:!my-10
+      prose-table:!w-full
+      prose-table:!border-collapse
 
-      prose-th:bg-gray-50
-      prose-th:p-3
-      prose-th:text-left
-      prose-th:text-sm
-      prose-th:font-bold
+      prose-th:!bg-gray-100
+      prose-th:!p-4
+      prose-th:!text-left
+      prose-th:!text-[16px]
+      prose-th:!font-bold
+      prose-th:!text-black
 
-      prose-td:p-3
-      prose-td:text-gray-700
-      prose-td:border-t
-      prose-td:border-gray-200
+      prose-td:!p-4
+      prose-td:!text-gray-700
+      prose-td:!border-t
+      prose-td:!border-gray-200
+      prose-td:!text-[17px]
 
       /* HR */
-      prose-hr:my-12
-      prose-hr:border-gray-200
+      prose-hr:!my-16
+      prose-hr:!border-gray-300
 
-      /* WordPress blocks */
-      [&_.wp-block-heading]:text-black
-      [&_.wp-block-heading]:!font-medium
-      [&_.wp-block-heading]:!mt-12
-      [&_.wp-block-heading]:!mb-4
+      /* WordPress specific blocks */
+      [&_.wp-block-heading]:!text-black
+      [&_.wp-block-heading]:!font-bold
+      [&_.wp-block-heading]:!text-[24px]
+      sm:[&_.wp-block-heading]:!text-[32px]
+      [&_.wp-block-heading]:!mt-16
+      [&_.wp-block-heading]:!mb-6
+      [&_.wp-block-heading]:!leading-[1.25]
 
       [&_.wp-block-spacer]:!hidden
 
-      [&_.wp-block-list]:!my-6
-      [&_.wp-block-list]:!space-y-2
-      [&_.wp-block-list]:!pl-6
+      [&_.wp-block-list]:!my-8
+      [&_.wp-block-list]:!space-y-3
+      [&_.wp-block-list]:!pl-0
+      [&_.wp-block-list]:!list-none
 
-      [&_.wp-block-quote]:border-l-[3px]
-      [&_.wp-block-quote]:border-gray-300
-      [&_.wp-block-quote]:pl-6
-      [&_.wp-block-quote]:italic
+      [&_.wp-block-list_li]:!pl-8
+      [&_.wp-block-list_li]:!relative
+      [&_.wp-block-list_li]:before:!content-['•']
+      [&_.wp-block-list_li]:before:!absolute
+      [&_.wp-block-list_li]:before:!left-0
+      [&_.wp-block-list_li]:before:!text-black
+      [&_.wp-block-list_li]:before:!font-bold
+      [&_.wp-block-list_li]:before:!text-[20px]
 
-      [&_.wp-block-quote_p]:text-gray-600
-      [&_.wp-block-quote_p]:mb-4
-      [&_.wp-block-quote_p]:last:mb-0
+      [&_.wp-block-quote]:!border-l-4
+      [&_.wp-block-quote]:!border-black
+      [&_.wp-block-quote]:!bg-gray-50
+      [&_.wp-block-quote]:!pl-8
+      [&_.wp-block-quote]:!pr-8
+      [&_.wp-block-quote]:!py-6
+      [&_.wp-block-quote]:!rounded-r-lg
+      [&_.wp-block-quote]:!my-10
+      [&_.wp-block-quote]:!not-italic
 
-      /* Force proper colors */
-      [&_p]:text-gray-700
-      [&_p]:font-normal
-      [&_ul]:!my-6
-      [&_ul]:!pl-6
-      [&_ul]:!list-disc
-      [&_ol]:!my-6
+      [&_.wp-block-quote_p]:!text-gray-800
+      [&_.wp-block-quote_p]:!text-[18px]
+      [&_.wp-block-quote_p]:!leading-[1.7]
+      [&_.wp-block-quote_p]:!font-medium
+      [&_.wp-block-quote_p]:!mb-4
+      [&_.wp-block-quote_p]:last:!mb-0
+
+      /* Direct element targeting for consistency */
+      [&_p]:!text-gray-700
+      [&_p]:!font-normal
+      [&_p]:!text-[18px]
+      [&_p]:!leading-[1.8]
+      [&_p]:!mb-6
+
+      [&_ul]:!my-8
+      [&_ul]:!pl-0
+      [&_ul]:!list-none
+      [&_ul]:!space-y-3
+
+      [&_ol]:!my-8
       [&_ol]:!pl-6
       [&_ol]:!list-decimal
-      [&_li]:text-gray-700
-      [&_li]:font-normal
-      [&_li]:!mb-2
-      [&_h1]:text-black
-      [&_h2]:text-black
-      [&_h2]:!text-[20px]
-      sm:[&_h2]:!text-[26px]
-      [&_h2]:!font-medium
-      [&_h2]:!mt-12
-      [&_h2]:!mb-4
-      [&_h3]:text-black
-      [&_h3]:!text-[18px]
-      sm:[&_h3]:!text-[22px]
-      [&_h3]:!font-medium
-      [&_h3]:!mt-8
-      [&_h3]:!mb-3
-      [&_h4]:text-black
+      [&_ol]:!space-y-3
+
+      [&_li]:!text-gray-700
+      [&_li]:!font-normal
+      [&_li]:!text-[18px]
+      [&_li]:!leading-[1.8]
+      [&_li]:!mb-0
+
+      [&_h1]:!text-black
+      [&_h1]:!font-bold
+      [&_h1]:!text-[28px]
+      sm:[&_h1]:!text-[36px]
+
+      [&_h2]:!text-black
+      [&_h2]:!font-bold
+      [&_h2]:!text-[24px]
+      sm:[&_h2]:!text-[32px]
+      [&_h2]:!mt-16
+      [&_h2]:!mb-6
+      [&_h2]:!leading-[1.25]
+
+      [&_h3]:!text-black
+      [&_h3]:!font-semibold
+      [&_h3]:!text-[20px]
+      sm:[&_h3]:!text-[24px]
+      [&_h3]:!mt-10
+      [&_h3]:!mb-4
+
+      [&_h4]:!text-black
+      [&_h4]:!font-semibold
+      [&_h4]:!text-[18px]
+      [&_h4]:!mt-8
+      [&_h4]:!mb-3
+
       [&_figure]:!w-full
       [&_figure]:!mx-0
-      [&_figure]:!my-8
+      [&_figure]:!my-12
       [&_figure]:!block
-      [&_h4]:!mt-6
-      [&_h4]:!mb-2
+
       [&_a]:!text-black
+      [&_a]:!font-medium
       [&_a]:!no-underline
-      [&_a]:!border-b
-      [&_a]:!border-gray-300
+      [&_a]:!border-b-2
+      [&_a]:!border-gray-400
       hover:[&_a]:!border-black
-      [&_strong]:text-black
-      [&_strong]:font-medium
-      [&_b]:text-black
-      [&_b]:font-medium
+      [&_a]:!transition-all
+
+      [&_strong]:!text-black
+      [&_strong]:!font-bold
+
+      [&_b]:!text-black
+      [&_b]:!font-bold
+
+      [&_br]:!my-2
     "
                                     dangerouslySetInnerHTML={{ __html: post.content || "" }}
                                 />

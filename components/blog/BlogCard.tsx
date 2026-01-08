@@ -12,8 +12,13 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post, index = 0 }: BlogCardProps) {
+  const handleClick = () => {
+    console.log('Blog Post Data:', post);
+    console.log('Blog Post JSON:', JSON.stringify(post, null, 2));
+  };
+
   return (
-    <Link href={`/blog/${post.slug}?id=${post.id}`}>
+    <Link href={`/blog/${post.slug}?id=${post.id}`} onClick={handleClick}>
       <motion.article
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
