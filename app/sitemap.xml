@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+
+  <!-- Core Pages -->
+  <url>
+    <loc>https://www.brandlocusgroup.com/home</loc>
+    <priority>1.00</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/about-us</loc>
+    <priority>0.85</priority>
+  </url>
+
+
+  <!-- Services -->
+  <url>
+    <loc>https://www.brandlocusgroup.com/services/business-development</loc>
+    <priority>0.90</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/services/brand-management</loc>
+    <priority>0.90</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/services/capacity-building</loc>
+    <priority>0.90</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/services/marketing-consulting</loc>
+    <priority>0.90</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/services/trade-investment</loc>
+    <priority>0.90</priority>
+  </url>
+
+
+  <!-- Products & Platforms -->
+  <url>
+    <loc>https://www.brandlocusgroup.com/business-quest</loc>
+    <priority>0.80</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/login</loc>
+    <priority>0.60</priority>
+  </url>
+
+
+  <!-- Engagement -->
+  <url>
+    <loc>https://www.brandlocusgroup.com/blog</loc>
+    <priority>0.75</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/contact</loc>
+    <priority>0.85</priority>
+  </url>
+
+
+  <!-- Legal -->
+  <url>
+    <loc>https://www.brandlocusgroup.com/privacy-policy</loc>
+    <priority>0.30</priority>
+  </url>
+
+
+  <url>
+    <loc>https://www.brandlocusgroup.com/terms-and-conditions</loc>
+    <priority>0.30</priority>
+  </url>
+
+
+</urlset>
