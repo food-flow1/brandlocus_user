@@ -88,13 +88,15 @@ const PrivacyPolicyPage = () => {
               2. How We Use Your Data
             </h2>
             <p className="text-sm sm:text-base md:text-lg text-gray-800 mb-3 sm:mb-4">
-              Your information helps us:
+              Your information enables us to:
             </p>
             <ul className="list-disc list-inside space-y-2 sm:space-y-3 text-sm sm:text-base md:text-lg text-gray-800 ml-4 sm:ml-6">
-              <li>Provide tailored business development and brand consulting solutions.</li>
-              <li>Respond to inquiries and offer personalized recommendations.</li>
-              <li>Improve our website, services, and communication.</li>
-              <li>Share updates, newsletters, or offers (only with your consent).</li>
+              <li>Respond to inquiries, consultation requests, and service engagements.</li>
+              <li>Deliver business development, brand strategy, capacity-building, and advisory services.</li>
+              <li>Facilitate access to funding, investment opportunities, and partner-led programs.</li>
+              <li>Communicate relevant training sessions, grant updates, workshops, and strategic initiatives aligned with your expressed interests.</li>
+              <li>Send newsletters, insights, and promotional campaigns only where you have actively and explicitly opted in through a dedicated consent mechanism.</li>
+              <li>Improve our services, digital platforms, and stakeholder engagement processes.</li>
             </ul>
           </section>
 
