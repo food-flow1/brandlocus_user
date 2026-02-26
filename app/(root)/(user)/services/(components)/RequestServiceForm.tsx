@@ -9,6 +9,8 @@ import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import CustomInput from "@/components/forms/CustomInput";
 import { usePathname } from 'next/navigation';
 import { getServiceFromPath, industryOptions } from '@/constants/data';
+import Link from 'next/link';
+import { ROUTES } from '@/constants/routes';
 import CustomSelect, { CustomSelectOption } from '@/components/forms/CustomSelect';
 import { ServiceNeededType } from "@/lib/api/types";
 
@@ -38,6 +40,7 @@ const RequestServiceForm: React.FC = () => {
   const serviceNeeded = getServiceFromPath(pathname);
   const [selectedSector, setSelectedSector] = useState<CustomSelectOption | null>(null);
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [agreedToPolicy, setAgreedToPolicy] = useState(false);
 
   return (
     <motion.div
@@ -158,11 +161,36 @@ const RequestServiceForm: React.FC = () => {
                 )}
               </div>
 
+              {/* Privacy Policy Checkbox */}
+              <label className="flex items-start gap-3 cursor-pointer group w-full mt-4">
+                  <input
+                      type="checkbox"
+                      checked={agreedToPolicy}
+                      onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                      className="mt-0.5 flex-shrink-0 w-5 h-5 appearance-none rounded border border-gray-300 bg-white transition-all cursor-pointer
+                          checked:bg-black checked:border-black
+                          group-hover:border-gray-400
+                          [&:checked]:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3%208l3.5%203.5%206.5-7%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')]
+                          [&:checked]:bg-center [&:checked]:bg-no-repeat [&:checked]:bg-contain"
+                  />
+                  <span className="text-xs text-gray-500 leading-relaxed">
+                      I agree to Brand Locus Limited&apos;s{' '}
+                      <Link
+                          href={ROUTES.PRIVACY_POLICY}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-gray-800 hover:text-black underline transition-colors"
+                      >
+                          privacy policy
+                      </Link>
+                      {' '}by submitting this form.
+                  </span>
+              </label>
+
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={isSubmitting || submitForm.isPending}
-                className="w-full bg-black text-white py-3 sm:py-4 px-6 rounded-xl font-semibold hover:bg-gray-800 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                disabled={isSubmitting || submitForm.isPending || !agreedToPolicy}
+                className="w-full bg-black text-white py-3 sm:py-4 px-6 rounded-xl font-semibold hover:bg-gray-800 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
               >
                 {submitForm.isPending ? (
                   <>

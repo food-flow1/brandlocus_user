@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -22,6 +22,7 @@ const ForgetPasswordPage = () => {
     const router = useRouter();
     const forgotPassword = useForgotPassword();
     const isSubmittingRef = useRef(false);
+    const [agreedToPolicy, setAgreedToPolicy] = useState(false);
 
     // Yup validation schema
     const validationSchema = Yup.object({
@@ -173,10 +174,33 @@ const ForgetPasswordPage = () => {
 
                                             {/* Submit Button */}
                                             <div className='flex flex-col items-center gap-4 pt-4'>
+                                                <label className="flex items-start gap-3 cursor-pointer group w-fit mx-auto">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={agreedToPolicy}
+                                                        onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                                                        className="mt-0.5 flex-shrink-0 w-5 h-5 appearance-none rounded border border-white/40 bg-transparent transition-all cursor-pointer
+                                                            checked:bg-white checked:border-white
+                                                            group-hover:border-white/70
+                                                            [&:checked]:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3%208l3.5%203.5%206.5-7%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')]
+                                                            [&:checked]:bg-center [&:checked]:bg-no-repeat [&:checked]:bg-contain"
+                                                    />
+                                                    <span className="text-xs text-white/50 leading-relaxed">
+                                                        I agree to Brand Locus Limited&apos;s{' '}
+                                                        <Link
+                                                            href={ROUTES.PRIVACY_POLICY}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="text-white/80 hover:text-white underline transition-colors"
+                                                        >
+                                                            privacy policy
+                                                        </Link>
+                                                        {' '}by sending reset link.
+                                                    </span>
+                                                </label>
                                                 <button
                                                     type="submit"
-                                                    disabled={isSubmitting || forgotPassword.isPending}
-                                                    className="w-full text-black bg-white/80 font-medium rounded-full px-8 py-3 cursor-pointer text-base sm:text-lg hover:bg-white hover:text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    disabled={isSubmitting || forgotPassword.isPending || !agreedToPolicy}
+                                                    className="w-full text-black bg-white/80 font-medium rounded-full px-8 py-3 cursor-pointer text-base sm:text-lg hover:bg-white hover:text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                                                 >
                                                     {isSubmitting || forgotPassword.isPending ? 'Sending...' : 'Send Reset Link'}
                                                 </button>

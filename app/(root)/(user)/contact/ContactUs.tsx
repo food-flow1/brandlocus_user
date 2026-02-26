@@ -6,6 +6,8 @@ import { FiMail, FiPhone, FiArrowRight } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
 import { useSubmitContactForm } from "@/lib/api/hooks/useForms";
 import { serviceNeededEnum } from "@/constants/data";
+import Link from 'next/link';
+import { ROUTES } from '@/constants/routes';
 
 const ContactUs = () => {
   const submitForm = useSubmitContactForm();
@@ -18,6 +20,7 @@ const ContactUs = () => {
     serviceNeeded: serviceNeededEnum.CONTACT,
   });
   const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [agreedToPolicy, setAgreedToPolicy] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -228,11 +231,36 @@ const ContactUs = () => {
                   />
                 </div>
 
+                {/* Privacy Policy Checkbox */}
+                <label className="flex items-start gap-3 cursor-pointer group w-full mt-4">
+                    <input
+                        type="checkbox"
+                        checked={agreedToPolicy}
+                        onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                        className="mt-0.5 flex-shrink-0 w-5 h-5 appearance-none rounded border border-gray-300 bg-white transition-all cursor-pointer
+                            checked:bg-black checked:border-black
+                            group-hover:border-gray-400
+                            [&:checked]:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3%208l3.5%203.5%206.5-7%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')]
+                            [&:checked]:bg-center [&:checked]:bg-no-repeat [&:checked]:bg-contain"
+                    />
+                    <span className="text-xs text-gray-500 leading-relaxed">
+                        I agree to Brand Locus Limited&apos;s{' '}
+                        <Link
+                            href={ROUTES.PRIVACY_POLICY}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-gray-800 hover:text-black underline transition-colors"
+                        >
+                            privacy policy
+                        </Link>
+                        {' '}by submitting this form.
+                    </span>
+                </label>
+
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={submitForm.isPending}
-                  className="w-full px-6 cursor-pointer sm:px-8 py-3 sm:py-3.5 md:py-4 bg-black text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  disabled={submitForm.isPending || !agreedToPolicy}
+                  className="w-full px-6 cursor-pointer sm:px-8 py-3 sm:py-3.5 md:py-4 bg-black text-white rounded-xl text-sm sm:text-base md:text-lg font-semibold hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
                 >
                   {submitForm.isPending ? (
                     <>

@@ -9,6 +9,8 @@ import CustomInput from "@/components/forms/CustomInput";
 import { useSubmitForm } from "@/lib/api/hooks/useForms";
 import { ServiceNeededType } from "@/lib/api/types";
 import { industryOptions, serviceNeededEnum } from "@/constants/data";
+import Link from 'next/link';
+import { ROUTES } from '@/constants/routes';
 
 // Form validation schema
 const validationSchema = Yup.object({
@@ -34,6 +36,7 @@ const JoinPlayTest = () => {
     const submitForm = useSubmitForm();
     const [selectedService, setSelectedService] = useState<CustomSelectOption | null>(null);
     const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+    const [agreedToPolicy, setAgreedToPolicy] = useState(false);
 
     return (
         <section id="join-playtest" className="w-full bg-[#050505] text-white py-16 sm:py-20 md:py-24 lg:py-28 px-4 sm:px-6 md:px-8 relative overflow-hidden">
@@ -178,10 +181,33 @@ const JoinPlayTest = () => {
                             </div>
 
                             {/* Submit Button */}
-                            <div className="flex justify-center">
+                            <div className="flex flex-col items-center gap-4 mt-2">
+                                <label className="flex items-start gap-3 cursor-pointer group w-fit mx-auto">
+                                    <input
+                                        type="checkbox"
+                                        checked={agreedToPolicy}
+                                        onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                                        className="mt-0.5 flex-shrink-0 w-5 h-5 appearance-none rounded border border-white/40 bg-transparent transition-all cursor-pointer
+                                            checked:bg-white checked:border-white
+                                            group-hover:border-white/70
+                                            [&:checked]:bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3%208l3.5%203.5%206.5-7%22%20stroke%3D%22%23000%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')]
+                                            [&:checked]:bg-center [&:checked]:bg-no-repeat [&:checked]:bg-contain"
+                                    />
+                                    <span className="text-xs text-white/50 leading-relaxed">
+                                        I agree to Brand Locus Limited&apos;s{' '}
+                                        <Link
+                                            href={ROUTES.PRIVACY_POLICY}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="text-white/80 hover:text-white underline transition-colors"
+                                        >
+                                            privacy policy
+                                        </Link>
+                                        {' '}by submitting this form.
+                                    </span>
+                                </label>
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || submitForm.isPending}
+                                    disabled={isSubmitting || submitForm.isPending || !agreedToPolicy}
                                     className="inline-flex items-center gap-3 bg-white text-black font-medium rounded-full px-8 sm:px-12 py-2 cursor-pointer sm:py-3 text-base sm:text-lg shadow-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {submitForm.isPending ? (
